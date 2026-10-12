@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 
 /**
@@ -15,6 +15,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/meals")
+@CrossOrigin(origins = "http://localhost:5173") // Autorise les requêtes cross-origin depuis n'importe quelle origine
 public class MenuController {
 
     private final MenuService menuService;
@@ -34,11 +35,11 @@ public class MenuController {
             @RequestParam(name = "count", defaultValue = "3") int count) {
         /*List<MealDto> meals = menuService.getRandomMenuSuggestions(count);
         return ResponseEntity.ok(meals);*/
-        return List.of(
+        return ResponseEntity.ok(List.of(
         new MealDto(1L, "Avocado, Corn, Tomato and Tortilla Soup", "url_image_1", 45, true, false),
         new MealDto(2L, "Peach Crostata", "url_image_2", 45, true, false),
         new MealDto(3L, "Grilled Chicken Salad", "url_image_3", 30, false, false)
-        );
+        ));
 
     }
 }
