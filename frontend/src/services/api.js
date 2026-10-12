@@ -97,3 +97,6 @@ export const getRecipeDetails = async (id) => {
     return mockRecipes[id] || mockRecipes[633166];
   }
 };
+
+// Alias de compatibilité
+export const getMealDetails = getRecipeDetails;

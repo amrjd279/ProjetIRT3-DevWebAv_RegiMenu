@@ -1,7 +1,9 @@
 package com.app.clientapi;
 
+import com.app.clientapi.dto.SpoonacularRecipeDetailDto;
 import com.app.clientapi.dto.SpoonacularResponseDto;
 import com.app.clientapi.mapper.RecipeMapper;
+import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,5 +62,31 @@ public class SpoonacularRestClient implements RecipeGateway {
 
         log.info("Recettes reçues avec succès depuis Spoonacular. Conversion via RecipeMapper...");
         return recipeMapper.toMealDtoList(rawResponse);
+    }
+
+    @Override
+    public MealDetailDto getRecipeDetails(Long id) {
+        log.info("Appel externe Spoonacular pour récupérer les détails de la recette id={}...", id);
+
+        SpoonacularRecipeDetailDto rawResponse = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/recipes/{id}/information")
+                        .queryParam("apiKey", apiKey)
+                        .build(id))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    String errorBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    log.error("Erreur client Spoonacular [{}]: {}", response.getStatusCode(), errorBody);
+                    throw new RuntimeException("Recette introuvable ou erreur Spoonacular (" + response.getStatusCode() + "): " + errorBody);
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                    String errorBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    log.error("Erreur serveur Spoonacular [{}]: {}", response.getStatusCode(), errorBody);
+                    throw new RuntimeException("API Spoonacular indisponible: " + errorBody);
+                })
+                .body(SpoonacularRecipeDetailDto.class);
+
+        log.info("Détails reçus pour la recette id={}. Conversion via RecipeMapper...", id);
+        return recipeMapper.toMealDetailDto(rawResponse);
     }
 }
