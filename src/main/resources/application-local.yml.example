@@ -1,0 +1,7 @@
+# Exemple de profil local
+# Copiez ce fichier sous le nom 'application-local.yml' et ajoutez votre clé API.
+# 'application-local.yml' est ignoré par Git.
+spoonacular:
+  api:
+    key: votre_cle_api_ici
+
