@@ -1,14 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Palette de couleurs Principales */
   --primary-50: #f0fdf4;
   --primary-100: #dcfce7;
   --primary-500: #22c55e;
   --primary-600: #16a34a;
   --primary-700: #15803d;
 
-  /* Neutres */
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
@@ -17,10 +15,9 @@
   --slate-800: #1e293b;
   --slate-900: #0f172a;
 
-  /* Ombres et Effets Pro */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -40,10 +37,8 @@ body {
   background-color: var(--slate-50);
   color: var(--slate-900);
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Spinner de chargement Pro */
 .loader-container {
   display: flex;
   flex-direction: column;

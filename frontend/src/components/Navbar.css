@@ -15,10 +15,6 @@
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--slate-900);
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .nav-links {
@@ -64,5 +60,4 @@
 .login-btn:hover {
   background-color: var(--primary-600);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
