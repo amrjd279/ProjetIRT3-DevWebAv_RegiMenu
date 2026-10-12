@@ -1,13 +1,14 @@
 package com.app.menu.model;
 
 /**
- * DTO interne épuré représentant un plat dans le domaine Menu.
+ * DTO interne représentant un plat dans le domaine Menu,
+ * exposé aux consommateurs (ex: frontend React).
  */
 public record MealDto(
-        String id,
-        String name,
+        Long id,
+        String title,
         String imageUrl,
-        Integer preparationTimeInMinutes,
-        Integer servings
+        Integer readyInMinutes,
+        Boolean isVegetarian,
+        Boolean isVegan
 ) {}
-

@@ -28,12 +28,12 @@ public class RecipeMapper {
             return null;
         }
         return new MealDto(
-                String.valueOf(dto.id()),
+                dto.id(),
                 dto.title(),
-                dto.imageURL(),
+                dto.imageUrl(),
                 dto.readyInMinutes(),
-                dto.servings()
+                dto.vegetarian() != null ? dto.vegetarian() : false,
+                dto.vegan() != null ? dto.vegan() : false
         );
     }
 }
-
