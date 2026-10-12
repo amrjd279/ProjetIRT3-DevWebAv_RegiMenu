@@ -1,0 +1,68 @@
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--slate-200);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-brand h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  background-color: var(--slate-100);
+  padding: 0.35rem;
+  border-radius: var(--radius-full);
+}
+
+.nav-item {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.925rem;
+  color: var(--slate-600);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
+}
+
+.nav-item:hover {
+  color: var(--slate-900);
+}
+
+.nav-item.active {
+  background-color: #ffffff;
+  color: var(--primary-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.login-btn {
+  padding: 0.65rem 1.4rem;
+  background-color: var(--slate-900);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.login-btn:hover {
+  background-color: var(--primary-600);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
