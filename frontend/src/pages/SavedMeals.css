@@ -1,0 +1,66 @@
+.saved-meals-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.saved-meals-header {
+  margin-bottom: 2rem;
+}
+
+.saved-meals-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.saved-meals-header p {
+  color: var(--slate-600);
+}
+
+.saved-meals-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.saved-meals-actions button,
+.remove-button {
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+}
+
+.saved-meals-actions button,
+.remove-button {
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+.saved-meals-actions button:hover,
+.remove-button:hover {
+  background: var(--slate-200);
+}
+
+.saved-meals-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.saved-meal-item {
+  position: relative;
+}
+
+.saved-meal-item .remove-button {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.empty-state {
+  background: var(--slate-100);
+  border-radius: var(--radius-lg);
+  color: var(--slate-600);
+  padding: 2rem;
+  text-align: center;
+}
