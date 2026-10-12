@@ -1,8 +1,7 @@
 package com.app.menu.controller;
 
-import com.app.menu.model.MealDto;
-import com.app.menu.model.MealsResponseDto;
-import com.app.menu.service.MenuService;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.app.menu.model.MealDto;
+import com.app.menu.model.MealsResponseDto;
+import com.app.menu.service.MenuService;
 
 /**
  * Contrôleur REST exposant les endpoints du module Menu.
@@ -46,7 +47,7 @@ public class MenuController {
         List<MealDto> mockMeals = List.of(
                 new MealDto(
                         633166L,
-                        "Avocado, Corn, Tomato and Tortilla Soup",
+                        "Soupe à l'avocat, au maïs, à la tomate et aux tortillas",
                         "https://img.spoonacular.com/recipes/633166-556x370.jpg",
                         45,
                         false,
@@ -54,19 +55,19 @@ public class MenuController {
                 ),
                 new MealDto(
                         655219L,
-                        "Peach Crostata",
+                        "Porridge crémeux aux flocons d'avoine et amandes",
                         "https://img.spoonacular.com/recipes/655219-556x370.jpg",
-                        45,
+                        15,
                         true,
-                        false
+                        true
                 ),
                 new MealDto(
                         645479L,
-                        "Grilled Chicken Salad",
+                        "Bâtonnets glacés verts rafraîchissants",
                         "https://img.spoonacular.com/recipes/645479-556x370.jpg",
-                        30,
-                        false,
-                        false
+                        20,
+                        true,
+                        true
                 )
         );
 

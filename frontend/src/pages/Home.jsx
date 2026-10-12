@@ -28,8 +28,8 @@ export default function Home() {
   return (
     <div className="home-container">
       <div className="home-header">
-        <h1>Proposition de Menus Aléatoires</h1>
-        <p>Découvrez vos suggestions du jour en tant que visiteur :</p>
+        <h1>Propositions de Menus Aléatoires</h1>
+        <p>Découvrez vos suggestions du jour et cliquez sur une recette pour voir les détails :</p>
       </div>
       
       <div className="meals-grid">
