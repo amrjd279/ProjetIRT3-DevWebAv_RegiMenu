@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * DTO interne représentant le détail complet d'un plat pour la page détail.
+ * Correspond aux champs attendus par le composant React RecipeDetail.
  */
 public record MealDetailDto(
         Long id,
@@ -14,10 +15,10 @@ public record MealDetailDto(
         Boolean isVegetarian,
         Boolean isVegan,
         Boolean isGlutenFree,
+        Boolean isLactoseFree,
         String summary,
         String instructions,
         String sourceUrl,
-        List<IngredientDto> ingredients,
+        List<IngredientDto> extendedIngredients,
         List<String> dishTypes
 ) {}
-

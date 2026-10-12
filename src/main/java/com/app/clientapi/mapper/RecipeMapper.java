@@ -60,6 +60,7 @@ public class RecipeMapper {
                 dto.vegetarian() != null ? dto.vegetarian() : false,
                 dto.vegan() != null ? dto.vegan() : false,
                 dto.glutenFree() != null ? dto.glutenFree() : false,
+                dto.dairyFree() != null ? dto.dairyFree() : false,
                 dto.summary(),
                 dto.instructions(),
                 dto.sourceUrl(),

@@ -18,10 +18,10 @@ public record SpoonacularRecipeDetailDto(
         Boolean vegetarian,
         Boolean vegan,
         Boolean glutenFree,
+        Boolean dairyFree,
         String summary,
         String instructions,
         String sourceUrl,
         List<SpoonacularIngredientDto> extendedIngredients,
         List<String> dishTypes
 ) {}
-

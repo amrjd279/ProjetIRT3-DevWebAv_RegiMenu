@@ -60,7 +60,7 @@ public class SpoonacularRestClient implements RecipeGateway {
                 })
                 .body(SpoonacularResponseDto.class);
 
-        log.info("Recettes aléatoires reçues. Conversion via RecipeMapper...");
+        log.info("Recettes reçues avec succès depuis Spoonacular. Conversion via RecipeMapper...");
         return recipeMapper.toMealDtoList(rawResponse);
     }
 

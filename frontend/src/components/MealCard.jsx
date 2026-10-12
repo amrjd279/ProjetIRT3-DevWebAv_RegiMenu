@@ -11,10 +11,10 @@ export default function MealCard({ meal }) {
       </div>
       <div className="meal-info">
         <h3>{meal.title}</h3>
-        <p>{meal.readyInMinutes} min</p>
+        <p className="meal-time">{meal.readyInMinutes} min</p>
         <div className="badges">
-          {meal.isVegetarian && <span className="badge veggie">Végétarien</span>}
-          {meal.isVegan && <span className="badge vegan">Végan</span>}
+          {meal.isVegetarian && <span className="badge veggie">🌱 Végétarien</span>}
+          {meal.isVegan && <span className="badge vegan">🌿 Végan</span>}
         </div>
       </div>
     </div>

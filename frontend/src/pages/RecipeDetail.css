@@ -1,0 +1,131 @@
+.recipe-detail-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.back-btn {
+  background: #ffffff;
+  color: var(--slate-800);
+  border: 1px solid var(--slate-200);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.back-btn:hover {
+  background: var(--slate-100);
+}
+
+.recipe-header {
+  display: flex;
+  gap: 2.5rem;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--slate-200);
+  margin-bottom: 2.5rem;
+  align-items: center;
+}
+
+.recipe-detail-image {
+  width: 360px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.recipe-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.recipe-header-info h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.recipe-meta-badges {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.meta-tag {
+  background: var(--slate-100);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.recipe-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .recipe-header {
+    flex-direction: column;
+  }
+  .recipe-detail-image {
+    width: 100%;
+  }
+  .recipe-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ingredients-section, 
+.instructions-section {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.ingredients-section h2, 
+.instructions-section h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--slate-800);
+  border-bottom: 2px solid var(--slate-100);
+  padding-bottom: 0.75rem;
+}
+
+.ingredients-section ul {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ingredients-section li {
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--slate-100);
+  color: var(--slate-700);
+}
+
+.instructions-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.instructions-text p {
+  line-height: 1.65;
+  color: var(--slate-700);
+}

@@ -1,5 +1,7 @@
 package com.app.menu.controller;
 
+import java.util.List;
+
 import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import com.app.menu.model.MealsResponseDto;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * Contrôleur REST exposant les endpoints du module Menu.
@@ -34,7 +34,8 @@ public class MenuController {
 
     /**
      * Endpoint GET /api/meals/random
-     * Récupère une liste de repas aléatoires.
+     * Appelle le service métier MenuService qui délègue à RecipeGateway (Spoonacular)
+     * et convertit les données via RecipeMapper vers MealDto.
      *
      * @param count Nombre de repas aléatoires à renvoyer (défaut : 3)
      * @return Objet MealsResponseDto contenant la liste des repas sous la clé "meals"
