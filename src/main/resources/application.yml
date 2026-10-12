@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    default: local
+
+spoonacular:
+  api:
+    base-url: https://api.spoonacular.com
+    key: ${SPOONACULAR_API_KEY:}
+
