@@ -3,6 +3,8 @@ package com.app.menu.controller;
 import com.app.menu.model.MealDto;
 import com.app.menu.model.MealsResponseDto;
 import com.app.menu.service.MenuService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class MenuController {
 
+    private static final Logger log = LoggerFactory.getLogger(MenuController.class);
+
     private final MenuService menuService;
 
     public MenuController(MenuService menuService) {
@@ -28,48 +32,18 @@ public class MenuController {
 
     /**
      * Endpoint GET /api/meals/random
+     * Appelle le service métier MenuService qui délègue à RecipeGateway (Spoonacular)
+     * et convertit les données via RecipeMapper vers MealDto.
      *
-     * @param count Nombre de repas à renvoyer (défaut : 3)
+     * @param count Nombre de repas aléatoires à renvoyer (défaut : 3)
      * @return Objet MealsResponseDto contenant la liste des repas sous la clé "meals"
      */
     @GetMapping("/random")
     public ResponseEntity<MealsResponseDto> getRandomMeals(
             @RequestParam(name = "count", defaultValue = "3") int count) {
+        log.info("Requête GET /api/meals/random reçue pour count={}", count);
 
-        /*
-         * Pour basculer sur la véritable API Spoonacular, décommentez ces 2 lignes :
-         * List<MealDto> realMeals = menuService.getRandomMenuSuggestions(count);
-         * return ResponseEntity.ok(new MealsResponseDto(realMeals));
-         */
-
-        // Mocks pour tests d'intégration avec le frontend React :
-        List<MealDto> mockMeals = List.of(
-                new MealDto(
-                        633166L,
-                        "Avocado, Corn, Tomato and Tortilla Soup",
-                        "https://img.spoonacular.com/recipes/633166-556x370.jpg",
-                        45,
-                        false,
-                        false
-                ),
-                new MealDto(
-                        655219L,
-                        "Peach Crostata",
-                        "https://img.spoonacular.com/recipes/655219-556x370.jpg",
-                        45,
-                        true,
-                        false
-                ),
-                new MealDto(
-                        645479L,
-                        "Grilled Chicken Salad",
-                        "https://img.spoonacular.com/recipes/645479-556x370.jpg",
-                        30,
-                        false,
-                        false
-                )
-        );
-
-        return ResponseEntity.ok(new MealsResponseDto(mockMeals));
+        List<MealDto> meals = menuService.getRandomMenuSuggestions(count);
+        return ResponseEntity.ok(new MealsResponseDto(meals));
     }
 }
