@@ -37,3 +37,13 @@ export const getRandomMeals = async () => {
     ];
   }
 };
+
+/**
+ * Récupère les détails complets d'une recette par son identifiant.
+ * @param {number|string} id - L'ID Spoonacular de la recette
+ * @returns {Promise<Object>} Les détails de la recette (ingrédients, instructions, etc.)
+ */
+export const getMealDetails = async (id) => {
+  const response = await axios.get(`${API_BASE_URL}/meals/${id}`);
+  return response.data;
+};
