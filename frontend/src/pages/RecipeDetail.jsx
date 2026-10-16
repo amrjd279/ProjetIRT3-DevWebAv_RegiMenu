@@ -10,22 +10,33 @@ function parseInstructions(instructions) {
   }
 
   const parsedDocument = new DOMParser().parseFromString(instructions, 'text/html');
-  const listItems = Array.from(parsedDocument.querySelectorAll('li'))
-    .map((item) => item.textContent.trim())
+  const cleanStep = (step) => step
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^[•●▪◦*-]\s*/, '')
+    .replace(/^\d+[.)]\s*/, '');
+
+  const listItems = Array.from(parsedDocument.querySelectorAll('ol, ul'))
+    .flatMap((list) => Array.from(list.children)
+      .filter((item) => item.tagName === 'LI'))
+    .map((item) => cleanStep(item.textContent))
     .filter(Boolean);
 
   if (listItems.length > 0) {
     return listItems;
   }
 
-  const text = instructions
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n');
-  const plainText = new DOMParser().parseFromString(text, 'text/html').body.textContent;
+  const paragraphs = Array.from(parsedDocument.querySelectorAll('p'))
+    .map((paragraph) => cleanStep(paragraph.textContent))
+    .filter(Boolean);
 
-  return plainText
+  if (paragraphs.length > 0) {
+    return paragraphs;
+  }
+
+  return (parsedDocument.body.textContent || instructions)
     .split(/\r?\n/)
-    .map((step) => step.trim().replace(/^\d+[.)]\s*/, ''))
+    .map(cleanStep)
     .filter(Boolean);
 }
 
