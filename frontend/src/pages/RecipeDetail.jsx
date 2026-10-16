@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRecipeDetails } from '../services/api';
+import { addToHistory, isFavorite, toggleFavorite } from '../services/storage';
 import './RecipeDetail.css';
 
 export default function RecipeDetail() {
@@ -13,6 +14,7 @@ export default function RecipeDetail() {
     getRecipeDetails(id)
       .then((data) => {
         setRecipe(data);
+        addToHistory(data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -54,6 +56,16 @@ export default function RecipeDetail() {
             {recipe.isVegetarian && <span className="badge veggie">Végétarien</span>}
             {recipe.isVegan && <span className="badge vegan">Végan</span>}
           </div>
+          <button
+            type="button"
+            className={`favorite-button ${recipe && isFavorite(recipe.id) ? 'is-favorite' : ''}`}
+            onClick={() => {
+              toggleFavorite(recipe);
+              setRecipe((current) => ({ ...current }));
+            }}
+          >
+            {isFavorite(recipe.id) ? '♥ Retirer des favoris' : '♡ Ajouter aux favoris'}
+          </button>
         </div>
       </div>
 
