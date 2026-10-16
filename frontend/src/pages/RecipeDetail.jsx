@@ -4,6 +4,31 @@ import { getRecipeDetails } from '../services/api';
 import { addToHistory, isFavorite, toggleFavorite } from '../services/storage';
 import './RecipeDetail.css';
 
+function parseInstructions(instructions) {
+  if (!instructions) {
+    return [];
+  }
+
+  const parsedDocument = new DOMParser().parseFromString(instructions, 'text/html');
+  const listItems = Array.from(parsedDocument.querySelectorAll('li'))
+    .map((item) => item.textContent.trim())
+    .filter(Boolean);
+
+  if (listItems.length > 0) {
+    return listItems;
+  }
+
+  const text = instructions
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n');
+  const plainText = new DOMParser().parseFromString(text, 'text/html').body.textContent;
+
+  return plainText
+    .split(/\r?\n/)
+    .map((step) => step.trim().replace(/^\d+[.)]\s*/, ''))
+    .filter(Boolean);
+}
+
 export default function RecipeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -83,9 +108,11 @@ export default function RecipeDetail() {
           <h2>Instructions de préparation</h2>
           <div className="instructions-text">
             {recipe.instructions ? (
-              recipe.instructions.split('\n').map((step, idx) => (
-                <p key={idx}>{step}</p>
-              ))
+              <ol>
+                {parseInstructions(recipe.instructions).map((step, idx) => (
+                  <li key={`${step}-${idx}`}>{step}</li>
+                ))}
+              </ol>
             ) : (
               <p>Aucune instruction détaillée disponible.</p>
             )}
