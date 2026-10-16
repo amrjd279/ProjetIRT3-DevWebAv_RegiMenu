@@ -120,12 +120,18 @@
 }
 
 .instructions-text {
+  color: var(--slate-700);
+}
+
+.instructions-text ol {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin: 0;
+  padding-left: 1.5rem;
 }
 
-.instructions-text p {
+.instructions-text li {
   line-height: 1.65;
-  color: var(--slate-700);
+  padding-left: 0.35rem;
 }
