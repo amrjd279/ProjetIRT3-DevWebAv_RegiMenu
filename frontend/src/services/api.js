@@ -2,6 +2,30 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
 
+/**
+ * Récupère le menu du jour (persistant au refresh).
+ * Si le backend a déjà généré les 3 repas pour aujourd'hui, ils sont renvoyés sans nouvel appel Spoonacular.
+ */
+export const getTodayMeals = async (userId = null) => {
+  try {
+    const params = userId ? { userId } : {};
+    const response = await axios.get(`${API_BASE_URL}/meals/today`, { params });
+    return response.data.meals;
+  } catch (error) {
+    console.warn("⚠️ getTodayMeals: bascule sur getRandomMeals en secours", error);
+    return getRandomMeals();
+  }
+};
+
+/**
+ * Régénère 3 nouveaux repas en appliquant les préférences alimentaires du profil utilisateur.
+ */
+export const regenerateMeals = async (userId = null) => {
+  const params = userId ? { userId } : {};
+  const response = await axios.post(`${API_BASE_URL}/meals/regenerate`, null, { params });
+  return response.data.meals;
+};
+
 export const getRandomMeals = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/meals/random`);
@@ -100,3 +124,21 @@ export const getRecipeDetails = async (id) => {
 
 // Alias de compatibilité
 export const getMealDetails = getRecipeDetails;
+
+/**
+ * Récupère le profil et les préférences utilisateur (Module Profile v0.2)
+ */
+export const getUserProfile = async (userId = null) => {
+  const url = userId ? `${API_BASE_URL}/profile/${userId}` : `${API_BASE_URL}/profile`;
+  const response = await axios.get(url);
+  return response.data;
+};
+
+/**
+ * Met à jour les préférences alimentaires de l'utilisateur (Module Profile v0.2)
+ */
+export const updateUserPreferences = async (preferences, userId = null) => {
+  const url = userId ? `${API_BASE_URL}/profile/${userId}/preferences` : `${API_BASE_URL}/profile/preferences`;
+  const response = await axios.put(url, preferences);
+  return response.data;
+};

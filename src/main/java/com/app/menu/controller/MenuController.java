@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,12 +34,33 @@ public class MenuController {
     }
 
     /**
-     * Endpoint GET /api/meals/random
-     * Appelle le service métier MenuService qui délègue à RecipeGateway (Spoonacular)
-     * et convertit les données via RecipeMapper vers MealDto.
-     *
-     * @param count Nombre de repas aléatoires à renvoyer (défaut : 3)
-     * @return Objet MealsResponseDto contenant la liste des repas sous la clé "meals"
+     * Endpoint GET /api/meals/today (v0.2)
+     * Récupère le menu du jour persistant au refresh.
+     * Si déjà généré en base aujourd'hui, aucun appel Spoonacular n'est effectué.
+     */
+    @GetMapping("/today")
+    public ResponseEntity<MealsResponseDto> getTodayMeals(
+            @RequestParam(name = "userId", required = false) Long userId) {
+        log.info("Requête GET /api/meals/today reçue pour userId={}", userId);
+        MealsResponseDto response = menuService.getTodayMenu(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Endpoint POST /api/meals/regenerate (v0.2)
+     * Bouton explicite pour recalculer 3 nouveaux repas selon les préférences du profil utilisateur.
+     */
+    @PostMapping("/regenerate")
+    public ResponseEntity<MealsResponseDto> regenerateMeals(
+            @RequestParam(name = "userId", required = false) Long userId) {
+        log.info("Requête POST /api/meals/regenerate reçue pour userId={}", userId);
+        MealsResponseDto response = menuService.regenerateTodayMenu(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Endpoint GET /api/meals/random (Compatibilité v0.1)
+     * Récupère une liste de repas aléatoires.
      */
     @GetMapping("/random")
     public ResponseEntity<MealsResponseDto> getRandomMeals(
@@ -52,9 +74,6 @@ public class MenuController {
     /**
      * Endpoint GET /api/meals/{id} (et alias /api/meals/{id}/information)
      * Récupère les détails complets d'une recette pour la page détail (ingrédients, instructions, etc.).
-     *
-     * @param id Identifiant de la recette
-     * @return Détails complets de la recette sous forme de MealDetailDto
      */
     @GetMapping({ "/{id}", "/{id}/information" })
     public ResponseEntity<MealDetailDto> getMealDetails(@PathVariable("id") Long id) {

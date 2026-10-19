@@ -4,9 +4,22 @@ server:
 spring:
   profiles:
     default: local
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:regimenudb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 spoonacular:
   api:
     base-url: https://api.spoonacular.com
     key: ${SPOONACULAR_API_KEY:}
-
