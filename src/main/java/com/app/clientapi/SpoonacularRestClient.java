@@ -38,15 +38,21 @@ public class SpoonacularRestClient implements RecipeGateway {
     }
 
     @Override
-    public List<MealDto> getRandomRecipes(int count) {
-        log.info("Appel externe Spoonacular pour récupérer {} recettes aléatoires...", count);
+    public List<MealDto> getRandomRecipes(int count, List<String> tags) {
+        String tagsParam = (tags != null && !tags.isEmpty()) ? String.join(",", tags) : null;
+        log.info("Appel externe Spoonacular pour récupérer {} recettes (tags: {})...", count, tagsParam);
 
         SpoonacularResponseDto rawResponse = restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recipes/random")
-                        .queryParam("number", count)
-                        .queryParam("apiKey", apiKey)
-                        .build())
+                .uri(uriBuilder -> {
+                    var builder = uriBuilder
+                            .path("/recipes/random")
+                            .queryParam("number", count)
+                            .queryParam("apiKey", apiKey);
+                    if (tagsParam != null && !tagsParam.isBlank()) {
+                        builder.queryParam("tags", tagsParam);
+                    }
+                    return builder.build();
+                })
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     String errorBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
