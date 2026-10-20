@@ -27,7 +27,6 @@ public class ProfileService {
      * Crée un nouveau profil.
      */
     public UserProfileDto createProfile(CreateProfileDto dto) {
-
         UserProfile profile = new UserProfile(
                 dto.username(),
                 dto.email()
@@ -35,6 +34,7 @@ public class ProfileService {
 
         DietaryPreferences preferences =
                 new DietaryPreferences(
+                        false, false, false, false, false,
                         dto.isVegetarian(),
                         dto.isVegan(),
                         dto.isGlutenFree(),
@@ -54,13 +54,11 @@ public class ProfileService {
      */
     @Transactional(readOnly = true)
     public UserProfileDto getProfile(Long id) {
-
         UserProfile profile =
                 profileRepository.findById(id)
                         .orElseThrow(
                                 () -> new IllegalArgumentException(
-                                        "Profil utilisateur introuvable pour l'id : "
-                                                + id
+                                        "Profil utilisateur introuvable pour l'id : " + id
                                 )
                         );
 
@@ -69,13 +67,9 @@ public class ProfileService {
 
     /**
      * Méthode utilisée par MenuService.
-     *
-     * Elle permet de récupérer les préférences
-     * d'un utilisateur.
      */
     @Transactional(readOnly = true)
     public DietaryPreferences getPreferences(Long id) {
-
         return profileRepository
                 .findById(id)
                 .map(UserProfile::getPreferences)
@@ -83,79 +77,48 @@ public class ProfileService {
     }
 
     /**
-     * US4.2
-     *
-     * Modifie les préférences alimentaires.
+     * Modifie les préférences et les allergies.
      */
     public UserProfileDto updatePreferences(
             Long id,
             UpdatePreferencesDto dto
     ) {
-
-        /*
-         * Étape 1 :
-         * récupérer le profil.
-         */
         UserProfile profile =
                 profileRepository.findById(id)
                         .orElseThrow(
                                 () -> new IllegalArgumentException(
-                                        "Profil utilisateur introuvable pour l'id : "
-                                                + id
+                                        "Profil utilisateur introuvable pour l'id : " + id
                                 )
                         );
 
-        /*
-         * Étape 2 :
-         * récupérer les préférences.
-         */
         DietaryPreferences preferences =
                 profile.getPreferences();
 
-        /*
-         * Étape 3 :
-         * modifier les quatre préférences.
-         */
-        preferences.setVegetarian(
-                dto.isVegetarian()
-        );
+        if (preferences == null) {
+            preferences = new DietaryPreferences();
+            profile.setPreferences(preferences);
+        }
 
-        preferences.setVegan(
-                dto.isVegan()
-        );
+        // Mise à jour des allergies
+        preferences.setAllergyPeanut(dto.isAllergyPeanut());
+        preferences.setAllergyDairy(dto.isAllergyDairy());
+        preferences.setAllergyGluten(dto.isAllergyGluten());
+        preferences.setAllergyEgg(dto.isAllergyEgg());
+        preferences.setAllergySeafood(dto.isAllergySeafood());
 
-        preferences.setGlutenFree(
-                dto.isGlutenFree()
-        );
+        // Mise à jour des préférences
+        preferences.setVegetarian(dto.isVegetarian());
+        preferences.setVegan(dto.isVegan());
+        preferences.setGlutenFree(dto.isGlutenFree());
+        preferences.setLactoseFree(dto.isLactoseFree());
 
-        preferences.setLactoseFree(
-                dto.isLactoseFree()
-        );
-
-        /*
-         * Étape 4 :
-         * sauvegarder le profil.
-         *
-         * Grâce à CascadeType.ALL,
-         * les préférences sont également sauvegardées.
-         */
         UserProfile saved =
                 profileRepository.save(profile);
 
-        /*
-         * Étape 5 :
-         * transformer l'entité en DTO.
-         */
         return toDto(saved);
     }
 
-    /**
-     * Incrémente le compteur de requêtes.
-     *
-     * Cette méthode est déjà utilisée par le projet.
-     */
     public void incrementRequestCount(Long id) {
-
         profileRepository
                 .findById(id)
                 .ifPresent(
@@ -163,21 +126,12 @@ public class ProfileService {
                 );
     }
 
-    /**
-     * Profil temporaire utilisé tant que
-     * l'authentification réelle n'est pas branchée.
-     *
-     * IMPORTANT :
-     * Cette méthode est temporaire.
-     */
     public UserProfile getOrCreateDefaultProfile() {
-
         return profileRepository
                 .findAll()
                 .stream()
                 .findFirst()
                 .orElseGet(() -> {
-
                     UserProfile defaultUser =
                             new UserProfile(
                                     "Visiteur",
@@ -190,33 +144,29 @@ public class ProfileService {
                 });
     }
 
-    /**
-     * Transforme une entité UserProfile
-     * en UserProfileDto.
-     */
     private UserProfileDto toDto(
             UserProfile profile
     ) {
-
         DietaryPreferences preferences =
                 profile.getPreferences();
 
+        if (preferences == null) {
+            preferences = new DietaryPreferences();
+        }
+
         return new UserProfileDto(
-
                 profile.getId(),
-
                 profile.getUsername(),
-
                 profile.getEmail(),
-
+                preferences.isAllergyPeanut(),
+                preferences.isAllergyDairy(),
+                preferences.isAllergyGluten(),
+                preferences.isAllergyEgg(),
+                preferences.isAllergySeafood(),
                 preferences.isVegetarian(),
-
                 preferences.isVegan(),
-
                 preferences.isGlutenFree(),
-
                 preferences.isLactoseFree(),
-
                 profile.getRequestCount()
         );
     }

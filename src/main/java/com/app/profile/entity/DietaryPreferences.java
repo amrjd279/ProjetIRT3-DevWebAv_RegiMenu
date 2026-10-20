@@ -11,14 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Préférences alimentaires d'un utilisateur.
- *
- * US4.1 :
- * Cette classe est une véritable entité JPA.
- *
- * Elle correspond donc à la table :
- *
- * user_preferences
+ * Préférences alimentaires et allergies d'un utilisateur.
  */
 @Entity
 @Table(name = "user_preferences")
@@ -28,50 +21,41 @@ public class DietaryPreferences {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Préférence végétarienne.
-     */
+    // --- ALLERGIES (Sécurité / Santé) ---
+    private boolean allergyPeanut = false;
+    private boolean allergyDairy = false;
+    private boolean allergyGluten = false;
+    private boolean allergyEgg = false;
+    private boolean allergySeafood = false;
+
+    // --- PRÉFÉRENCES (Style de vie) ---
     private boolean vegetarian = false;
-
-    /**
-     * Préférence végane.
-     */
     private boolean vegan = false;
-
-    /**
-     * Régime sans gluten.
-     */
     private boolean glutenFree = false;
-
-    /**
-     * Régime sans lactose.
-     */
     private boolean lactoseFree = false;
 
-    /**
-     * Profil auquel appartiennent ces préférences.
-     *
-     * mappedBy = "preferences"
-     * signifie que UserProfile possède la relation principale.
-     */
     @OneToOne(mappedBy = "preferences")
     private UserProfile profile;
 
-    /**
-     * Constructeur obligatoire pour JPA.
-     */
     public DietaryPreferences() {
     }
 
-    /**
-     * Constructeur pratique.
-     */
     public DietaryPreferences(
+            boolean allergyPeanut,
+            boolean allergyDairy,
+            boolean allergyGluten,
+            boolean allergyEgg,
+            boolean allergySeafood,
             boolean vegetarian,
             boolean vegan,
             boolean glutenFree,
             boolean lactoseFree
     ) {
+        this.allergyPeanut = allergyPeanut;
+        this.allergyDairy = allergyDairy;
+        this.allergyGluten = allergyGluten;
+        this.allergyEgg = allergyEgg;
+        this.allergySeafood = allergySeafood;
         this.vegetarian = vegetarian;
         this.vegan = vegan;
         this.glutenFree = glutenFree;
@@ -82,78 +66,50 @@ public class DietaryPreferences {
         return id;
     }
 
-    public boolean isVegetarian() {
-        return vegetarian;
-    }
+    public boolean isAllergyPeanut() { return allergyPeanut; }
+    public void setAllergyPeanut(boolean allergyPeanut) { this.allergyPeanut = allergyPeanut; }
 
-    public void setVegetarian(boolean vegetarian) {
-        this.vegetarian = vegetarian;
-    }
+    public boolean isAllergyDairy() { return allergyDairy; }
+    public void setAllergyDairy(boolean allergyDairy) { this.allergyDairy = allergyDairy; }
 
-    public boolean isVegan() {
-        return vegan;
-    }
+    public boolean isAllergyGluten() { return allergyGluten; }
+    public void setAllergyGluten(boolean allergyGluten) { this.allergyGluten = allergyGluten; }
 
-    public void setVegan(boolean vegan) {
-        this.vegan = vegan;
-    }
+    public boolean isAllergyEgg() { return allergyEgg; }
+    public void setAllergyEgg(boolean allergyEgg) { this.allergyEgg = allergyEgg; }
 
-    public boolean isGlutenFree() {
-        return glutenFree;
-    }
+    public boolean isAllergySeafood() { return allergySeafood; }
+    public void setAllergySeafood(boolean allergySeafood) { this.allergySeafood = allergySeafood; }
 
-    public void setGlutenFree(boolean glutenFree) {
-        this.glutenFree = glutenFree;
-    }
+    public boolean isVegetarian() { return vegetarian; }
+    public void setVegetarian(boolean vegetarian) { this.vegetarian = vegetarian; }
 
-    public boolean isLactoseFree() {
-        return lactoseFree;
-    }
+    public boolean isVegan() { return vegan; }
+    public void setVegan(boolean vegan) { this.vegan = vegan; }
 
-    public void setLactoseFree(boolean lactoseFree) {
-        this.lactoseFree = lactoseFree;
-    }
+    public boolean isGlutenFree() { return glutenFree; }
+    public void setGlutenFree(boolean glutenFree) { this.glutenFree = glutenFree; }
 
-    public UserProfile getProfile() {
-        return profile;
-    }
+    public boolean isLactoseFree() { return lactoseFree; }
+    public void setLactoseFree(boolean lactoseFree) { this.lactoseFree = lactoseFree; }
 
-    public void setProfile(UserProfile profile) {
-        this.profile = profile;
-    }
+    public UserProfile getProfile() { return profile; }
+    public void setProfile(UserProfile profile) { this.profile = profile; }
 
-    /**
-     * Transforme les préférences en tags compatibles avec Spoonacular.
-     *
-     * Exemple :
-     *
-     * vegan = true
-     * glutenFree = true
-     *
-     * donne :
-     *
-     * ["vegan", "gluten free"]
-     */
     public List<String> toSpoonacularTags() {
-
         List<String> tags = new ArrayList<>();
 
-        /*
-         * Vegan est plus restrictif que végétarien.
-         *
-         * Si vegan est activé, on envoie seulement "vegan".
-         */
         if (vegan) {
             tags.add("vegan");
         } else if (vegetarian) {
             tags.add("vegetarian");
         }
 
-        if (glutenFree) {
+        if (glutenFree || allergyGluten) {
             tags.add("gluten free");
         }
 
-        if (lactoseFree) {
+        if (lactoseFree || allergyDairy) {
             tags.add("dairy free");
         }
 
