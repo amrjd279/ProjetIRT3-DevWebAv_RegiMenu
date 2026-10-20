@@ -7,5 +7,5 @@ public record CreateProfileDto(
         boolean isVegan,
         boolean isGlutenFree,
         boolean isLactoseFree
-) {}
-
+) {
+}
