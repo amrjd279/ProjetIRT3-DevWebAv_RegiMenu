@@ -1,7 +1,9 @@
 package com.app.clientapi.mapper;
 
+import com.app.clientapi.dto.SpoonacularRecipeDetailDto;
 import com.app.clientapi.dto.SpoonacularRecipeDto;
 import com.app.clientapi.dto.SpoonacularResponseDto;
+import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,6 +71,9 @@ class RecipeMapperTest {
         // TODO: ÉTUDIANT - Écris ton test ici :
         // List<MealDto> results = recipeMapper.toMealDtoList(null);
         // assertThat(results).isNotNull().isEmpty();
+        SpoonacularResponseDto responseWithNullList = new SpoonacularResponseDto(null);
+        List<MealDto> resultsWithNullList = recipeMapper.toMealDtoList(responseWithNullList);
+        assertThat(resultsWithNullList).isNotNull().isEmpty();
     }
 
     /**
@@ -84,7 +89,19 @@ class RecipeMapperTest {
     @Test
     @DisplayName("Devrait mapper un SpoonacularRecipeDetailDto en MealDetailDto avec extendedIngredients")
     void studentTask_shouldMapDetailDtoCorrectly() {
-        // TODO: ÉTUDIANT - Écris ton test ici en t'inspirant du Test 1 !
+        SpoonacularRecipeDetailDto detailDto = new SpoonacularRecipeDetailDto(
+                633166L,
+                "Soupe Tortilla",
+                "https://img.spoonacular.com/recipes/633166-556x370.jpg",
+                45,
+                4,
+                true,   
+                false,  
+                true,  
+                true, null, null, null, null, List.of("Laitue", "Poulet", "Parmesan")
+        );
+        MealDetailDto result = recipeMapper.toMealDetailDto(detailDto);
+        assertThat(result).isNotNull();
+        assertThat(result.isLactoseFree()).isTrue();
     }
 }
-

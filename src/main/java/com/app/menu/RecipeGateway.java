@@ -38,3 +38,4 @@ public interface RecipeGateway {
      */
     MealDetailDto getRecipeDetails(Long id);
 }
+
