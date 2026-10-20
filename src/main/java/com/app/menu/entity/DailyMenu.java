@@ -1,41 +1,25 @@
 package com.app.menu.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entité représentant les 3 repas du jour générés pour un utilisateur ou visiteur.
+ * Modèle de domaine représentant les 3 repas du jour générés pour un utilisateur ou visiteur.
+ * (Persistance gérée via Spring JdbcClient conformément au cahier des charges).
  */
-@Entity
-@Table(name = "daily_menus")
 public class DailyMenu {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // Identifiant de l'utilisateur (ou null si visiteur anonyme)
     private Long userProfileId;
-
     private LocalDate menuDate;
-
     private LocalDateTime generatedAt;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "daily_menu_id")
     private List<DailyMeal> meals = new ArrayList<>();
 
-    public DailyMenu() {}
+    public DailyMenu() {
+        this.generatedAt = LocalDateTime.now();
+    }
 
     public DailyMenu(Long userProfileId, LocalDate menuDate) {
         this.userProfileId = userProfileId;
@@ -43,8 +27,20 @@ public class DailyMenu {
         this.generatedAt = LocalDateTime.now();
     }
 
+    public DailyMenu(Long id, Long userProfileId, LocalDate menuDate, LocalDateTime generatedAt, List<DailyMeal> meals) {
+        this.id = id;
+        this.userProfileId = userProfileId;
+        this.menuDate = menuDate;
+        this.generatedAt = generatedAt;
+        this.meals = (meals != null) ? meals : new ArrayList<>();
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getUserProfileId() {
@@ -79,4 +75,3 @@ public class DailyMenu {
         this.meals = meals;
     }
 }
-

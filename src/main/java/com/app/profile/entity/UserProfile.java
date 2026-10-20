@@ -1,29 +1,18 @@
 package com.app.profile.entity;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * Entité représentant le profil d'un utilisateur et ses préférences.
+ * Modèle de domaine représentant le profil d'un utilisateur et ses préférences.
  */
-@Entity
-@Table(name = "user_profiles")
 public class UserProfile {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String username;
 
     private String email;
 
-    @Embedded
     private DietaryPreferences preferences = new DietaryPreferences();
 
     // Compteur de requêtes API consommées par cet utilisateur (pour Admin / v0.3)
@@ -40,6 +29,10 @@ public class UserProfile {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -70,6 +63,10 @@ public class UserProfile {
         return requestCount;
     }
 
+    public void setRequestCount(int requestCount) {
+        this.requestCount = requestCount;
+    }
+
     public void incrementRequestCount() {
         this.requestCount++;
     }
@@ -77,5 +74,8 @@ public class UserProfile {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-}
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+}

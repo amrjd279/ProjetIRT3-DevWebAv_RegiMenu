@@ -1,14 +1,12 @@
 package com.app.profile.entity;
 
-import jakarta.persistence.Embeddable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Préférences alimentaires de l'utilisateur.
- * Cet objet est stocké dans l'entité UserProfile.
+ * Cet objet est stocké dans l'objet UserProfile.
  */
-@Embeddable
 public class DietaryPreferences {
 
     private boolean vegetarian = false;
@@ -76,4 +74,3 @@ public class DietaryPreferences {
         return tags;
     }
 }
-

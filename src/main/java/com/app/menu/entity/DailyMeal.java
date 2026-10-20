@@ -1,32 +1,18 @@
 package com.app.menu.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 /**
- * Entité stockant un plat associé à un menu quotidien en base de données.
+ * Modèle de domaine représentant un plat associé à un menu quotidien en base de données.
+ * (Persistance gérée via Spring JdbcClient conformément au cahier des charges).
  */
-@Entity
-@Table(name = "daily_meals")
 public class DailyMeal {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Long dailyMenuId;
     private Long externalRecipeId;
-
     private String title;
-
     private String imageUrl;
-
     private Integer readyInMinutes;
-
     private Boolean isVegetarian;
-
     private Boolean isVegan;
 
     public DailyMeal() {}
@@ -40,8 +26,31 @@ public class DailyMeal {
         this.isVegan = isVegan;
     }
 
+    public DailyMeal(Long id, Long dailyMenuId, Long externalRecipeId, String title, String imageUrl, Integer readyInMinutes, Boolean isVegetarian, Boolean isVegan) {
+        this.id = id;
+        this.dailyMenuId = dailyMenuId;
+        this.externalRecipeId = externalRecipeId;
+        this.title = title;
+        this.imageUrl = imageUrl;
+        this.readyInMinutes = readyInMinutes;
+        this.isVegetarian = isVegetarian;
+        this.isVegan = isVegan;
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getDailyMenuId() {
+        return dailyMenuId;
+    }
+
+    public void setDailyMenuId(Long dailyMenuId) {
+        this.dailyMenuId = dailyMenuId;
     }
 
     public Long getExternalRecipeId() {
@@ -92,4 +101,3 @@ public class DailyMeal {
         this.isVegan = isVegan;
     }
 }
-

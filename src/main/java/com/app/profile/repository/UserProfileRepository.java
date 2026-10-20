@@ -1,16 +1,23 @@
 package com.app.profile.repository;
 
 import com.app.profile.entity.UserProfile;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
+/**
+ * Contrat de persistance pour les profils utilisateurs.
+ * Les requêtes SQL doivent être écrites avec Spring JdbcClient (pas de JPA).
+ */
+public interface UserProfileRepository {
+
+    Optional<UserProfile> findById(Long id);
 
     Optional<UserProfile> findByEmail(String email);
 
     Optional<UserProfile> findByUsername(String username);
-}
 
+    List<UserProfile> findAll();
+
+    UserProfile save(UserProfile userProfile);
+}
