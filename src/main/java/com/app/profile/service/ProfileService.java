@@ -6,9 +6,13 @@ import com.app.profile.dto.UserProfileDto;
 import com.app.profile.entity.DietaryPreferences;
 import com.app.profile.entity.UserProfile;
 import com.app.profile.repository.UserProfileRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service contenant la logique métier du profil.
+ */
 @Service
 @Transactional
 public class ProfileService {
@@ -19,75 +23,201 @@ public class ProfileService {
         this.profileRepository = profileRepository;
     }
 
+    /**
+     * Crée un nouveau profil.
+     */
     public UserProfileDto createProfile(CreateProfileDto dto) {
-        UserProfile profile = new UserProfile(dto.username(), dto.email());
-        DietaryPreferences prefs = new DietaryPreferences(
-                dto.isVegetarian(),
-                dto.isVegan(),
-                dto.isGlutenFree(),
-                dto.isLactoseFree()
+
+        UserProfile profile = new UserProfile(
+                dto.username(),
+                dto.email()
         );
-        profile.setPreferences(prefs);
-        UserProfile saved = profileRepository.save(profile);
+
+        DietaryPreferences preferences =
+                new DietaryPreferences(
+                        dto.isVegetarian(),
+                        dto.isVegan(),
+                        dto.isGlutenFree(),
+                        dto.isLactoseFree()
+                );
+
+        profile.setPreferences(preferences);
+
+        UserProfile saved =
+                profileRepository.save(profile);
+
         return toDto(saved);
     }
 
+    /**
+     * Récupère un profil grâce à son ID.
+     */
     @Transactional(readOnly = true)
     public UserProfileDto getProfile(Long id) {
-        UserProfile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Profil utilisateur introuvable pour l'id : " + id));
+
+        UserProfile profile =
+                profileRepository.findById(id)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Profil utilisateur introuvable pour l'id : "
+                                                + id
+                                )
+                        );
+
         return toDto(profile);
     }
 
+    /**
+     * Méthode utilisée par MenuService.
+     *
+     * Elle permet de récupérer les préférences
+     * d'un utilisateur.
+     */
     @Transactional(readOnly = true)
     public DietaryPreferences getPreferences(Long id) {
-        return profileRepository.findById(id)
+
+        return profileRepository
+                .findById(id)
                 .map(UserProfile::getPreferences)
                 .orElse(new DietaryPreferences());
     }
 
-    public UserProfileDto updatePreferences(Long id, UpdatePreferencesDto dto) {
-        UserProfile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Profil utilisateur introuvable pour l'id : " + id));
+    /**
+     * US4.2
+     *
+     * Modifie les préférences alimentaires.
+     */
+    public UserProfileDto updatePreferences(
+            Long id,
+            UpdatePreferencesDto dto
+    ) {
 
-        DietaryPreferences prefs = profile.getPreferences();
-        prefs.setVegetarian(dto.isVegetarian());
-        prefs.setVegan(dto.isVegan());
-        prefs.setGlutenFree(dto.isGlutenFree());
-        prefs.setLactoseFree(dto.isLactoseFree());
+        /*
+         * Étape 1 :
+         * récupérer le profil.
+         */
+        UserProfile profile =
+                profileRepository.findById(id)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Profil utilisateur introuvable pour l'id : "
+                                                + id
+                                )
+                        );
 
-        return toDto(profile);
-    }
+        /*
+         * Étape 2 :
+         * récupérer les préférences.
+         */
+        DietaryPreferences preferences =
+                profile.getPreferences();
 
-    public void incrementRequestCount(Long id) {
-        profileRepository.findById(id).ifPresent(UserProfile::incrementRequestCount);
+        /*
+         * Étape 3 :
+         * modifier les quatre préférences.
+         */
+        preferences.setVegetarian(
+                dto.isVegetarian()
+        );
+
+        preferences.setVegan(
+                dto.isVegan()
+        );
+
+        preferences.setGlutenFree(
+                dto.isGlutenFree()
+        );
+
+        preferences.setLactoseFree(
+                dto.isLactoseFree()
+        );
+
+        /*
+         * Étape 4 :
+         * sauvegarder le profil.
+         *
+         * Grâce à CascadeType.ALL,
+         * les préférences sont également sauvegardées.
+         */
+        UserProfile saved =
+                profileRepository.save(profile);
+
+        /*
+         * Étape 5 :
+         * transformer l'entité en DTO.
+         */
+        return toDto(saved);
     }
 
     /**
-     * Récupère un profil utilisateur par défaut ou en crée un si aucun n'existe.
-     * Pratique pour tester la v0.2 immédiatement.
+     * Incrémente le compteur de requêtes.
+     *
+     * Cette méthode est déjà utilisée par le projet.
+     */
+    public void incrementRequestCount(Long id) {
+
+        profileRepository
+                .findById(id)
+                .ifPresent(
+                        UserProfile::incrementRequestCount
+                );
+    }
+
+    /**
+     * Profil temporaire utilisé tant que
+     * l'authentification réelle n'est pas branchée.
+     *
+     * IMPORTANT :
+     * Cette méthode est temporaire.
      */
     public UserProfile getOrCreateDefaultProfile() {
-        return profileRepository.findAll().stream()
+
+        return profileRepository
+                .findAll()
+                .stream()
                 .findFirst()
                 .orElseGet(() -> {
-                    UserProfile defaultUser = new UserProfile("Visiteur", "user@regimenu.com");
-                    return profileRepository.save(defaultUser);
+
+                    UserProfile defaultUser =
+                            new UserProfile(
+                                    "Visiteur",
+                                    "user@regimenu.com"
+                            );
+
+                    return profileRepository.save(
+                            defaultUser
+                    );
                 });
     }
 
-    private UserProfileDto toDto(UserProfile profile) {
-        DietaryPreferences prefs = profile.getPreferences() != null ? profile.getPreferences() : new DietaryPreferences();
+    /**
+     * Transforme une entité UserProfile
+     * en UserProfileDto.
+     */
+    private UserProfileDto toDto(
+            UserProfile profile
+    ) {
+
+        DietaryPreferences preferences =
+                profile.getPreferences();
+
         return new UserProfileDto(
+
                 profile.getId(),
+
                 profile.getUsername(),
+
                 profile.getEmail(),
-                prefs.isVegetarian(),
-                prefs.isVegan(),
-                prefs.isGlutenFree(),
-                prefs.isLactoseFree(),
+
+                preferences.isVegetarian(),
+
+                preferences.isVegan(),
+
+                preferences.isGlutenFree(),
+
+                preferences.isLactoseFree(),
+
                 profile.getRequestCount()
         );
     }
 }
-
