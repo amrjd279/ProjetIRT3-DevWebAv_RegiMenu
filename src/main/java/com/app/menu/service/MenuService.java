@@ -1,6 +1,6 @@
 package com.app.menu.service;
 
-import com.app.clientapi.RecipeGateway;
+import com.app.menu.RecipeGateway;
 import com.app.menu.entity.DailyMeal;
 import com.app.menu.entity.DailyMenu;
 import com.app.menu.model.MealDetailDto;

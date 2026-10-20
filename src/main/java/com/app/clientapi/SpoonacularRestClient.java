@@ -3,6 +3,7 @@ package com.app.clientapi;
 import com.app.clientapi.dto.SpoonacularRecipeDetailDto;
 import com.app.clientapi.dto.SpoonacularResponseDto;
 import com.app.clientapi.mapper.RecipeMapper;
+import com.app.menu.RecipeGateway;
 import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import org.slf4j.Logger;

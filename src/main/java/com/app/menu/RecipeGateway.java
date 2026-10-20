@@ -1,4 +1,4 @@
-package com.app.clientapi;
+package com.app.menu;
 
 import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Contrat d'accès aux recettes externes (Port dans l'architecture hexagonale / Passerelle).
- * Ce contrat est appelé par le reste de l'application (notamment le module Menu).
+ * Port d'accès aux recettes externes (défini par le module Menu).
+ * Le module clientapi implémente ce contrat (Architecture Hexagonale).
  */
 public interface RecipeGateway {
 
@@ -22,7 +22,7 @@ public interface RecipeGateway {
     }
 
     /**
-     * Récupère une liste de recettes aléatoires filtrées par des tags alimentaires (ex: vegetarian, vegan, gluten free).
+     * Récupère une liste de recettes aléatoires filtrées par des tags alimentaires.
      *
      * @param count Nombre de recettes demandées
      * @param tags  Tags de régime ou préférences
