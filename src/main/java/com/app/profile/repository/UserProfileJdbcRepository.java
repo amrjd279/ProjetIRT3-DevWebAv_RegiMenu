@@ -144,3 +144,4 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
         return profile;
     }
 }
+

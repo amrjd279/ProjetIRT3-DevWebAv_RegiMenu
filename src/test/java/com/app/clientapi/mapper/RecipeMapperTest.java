@@ -68,9 +68,6 @@ class RecipeMapperTest {
     @Test
     @DisplayName("Devrait renvoyer une liste vide si la réponse Spoonacular est nulle")
     void studentTask_shouldReturnEmptyListWhenResponseIsNull() {
-        // TODO: ÉTUDIANT - Écris ton test ici :
-        // List<MealDto> results = recipeMapper.toMealDtoList(null);
-        // assertThat(results).isNotNull().isEmpty();
         SpoonacularResponseDto responseWithNullList = new SpoonacularResponseDto(null);
         List<MealDto> resultsWithNullList = recipeMapper.toMealDtoList(responseWithNullList);
         assertThat(resultsWithNullList).isNotNull().isEmpty();

@@ -31,3 +31,4 @@ CREATE TABLE IF NOT EXISTS daily_meals (
     is_vegan BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_daily_meal_menu FOREIGN KEY (daily_menu_id) REFERENCES daily_menus(id) ON DELETE CASCADE
 );
+

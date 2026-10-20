@@ -79,10 +79,20 @@ class DailyMenuJdbcRepositoryTest {
     @Test
     @DisplayName("Devrait sauvegarder et recharger un menu pour un visiteur anonyme")
     void studentTask_shouldSaveAndRetrieveMenuForAnonymousVisitor() {
-        // TODO: ÉTUDIANT - Complète ce test en suivant les consignes ci-dessus !
-        // LocalDate today = LocalDate.now();
-        // DailyMenu visitorMenu = new DailyMenu(null, today);
-        // ...
+        
+        LocalDate today = LocalDate.now();
+        DailyMenu visitorMenu = new DailyMenu(null, today);
+        visitorMenu.setMeals(List.of(
+                new DailyMeal(201L, "Tarte aux légumes", "https://img.com/201.jpg", 30, true, false)
+        ));
+        DailyMenu savedVisitorMenu = dailyMenuRepository.save(visitorMenu);
+        Optional<DailyMenu> reloadedOpt = dailyMenuRepository.findTopByMenuDateAndUserProfileIdIsNullOrderByGeneratedAtDesc(today);
+        assertThat(reloadedOpt).isPresent();
+        DailyMenu reloaded = reloadedOpt.get();
+        assertThat(reloaded.getUserProfileId()).isNull();
+        assertThat(reloaded.getMeals()).hasSize(1);
+        assertThat(reloaded.getMeals().get(0).getTitle()).isEqualTo("Tarte aux légumes");
+        assertThat(reloaded.getMeals().get(0).getExternalRecipeId()).isEqualTo(201L);
     }
 
     /**
@@ -99,6 +109,9 @@ class DailyMenuJdbcRepositoryTest {
     @Test
     @DisplayName("Devrait renvoyer un Optional vide si aucun menu n'existe pour la date demandée")
     void studentTask_shouldReturnEmptyWhenNoMenuExistsForDate() {
-        // TODO: ÉTUDIANT - Complète ce test en suivant les consignes ci-dessus !
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        Optional<DailyMenu> resultOpt = dailyMenuRepository.findTopByMenuDateAndUserProfileIdOrderByGeneratedAtDesc(yesterday, 999L);
+        assertThat(resultOpt).isEmpty();
     }
 }
+

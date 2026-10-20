@@ -49,7 +49,6 @@ class ModularityTests {
      */
     @Test
     void studentTask_verifyMenuModuleIsolation() {
-        // TODO: ÉTUDIANT - Décommente et complète le code ci-dessous :
         var menuModule = modules.getModuleByName("menu").orElseThrow(() -> new AssertionError("Le module 'menu' n'a pas été détecté !"));
         
         org.assertj.core.api.Assertions.assertThat(menuModule).isNotNull();
