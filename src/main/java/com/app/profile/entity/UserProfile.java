@@ -3,7 +3,8 @@ package com.app.profile.entity;
 import java.time.LocalDateTime;
 
 /**
- * Modèle de domaine représentant le profil d'un utilisateur et ses préférences.
+ * Profil utilisateur.
+ * Modèle de domaine sans JPA (persistance assurée via Spring JdbcClient).
  */
 public class UserProfile {
 
@@ -13,18 +14,23 @@ public class UserProfile {
 
     private String email;
 
-    private DietaryPreferences preferences = new DietaryPreferences();
+    private DietaryPreferences preferences;
 
-    // Compteur de requêtes API consommées par cet utilisateur (pour Admin / v0.3)
+    /**
+     * Compteur déjà utilisé par le projet pour suivre les requêtes.
+     */
     private int requestCount = 0;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public UserProfile() {}
+    public UserProfile() {
+        setPreferences(new DietaryPreferences());
+    }
 
     public UserProfile(String username, String email) {
         this.username = username;
         this.email = email;
+        setPreferences(new DietaryPreferences());
     }
 
     public Long getId() {
@@ -52,11 +58,17 @@ public class UserProfile {
     }
 
     public DietaryPreferences getPreferences() {
+        if (preferences == null) {
+            setPreferences(new DietaryPreferences());
+        }
         return preferences;
     }
 
     public void setPreferences(DietaryPreferences preferences) {
         this.preferences = preferences;
+        if (preferences != null) {
+            preferences.setProfile(this);
+        }
     }
 
     public int getRequestCount() {

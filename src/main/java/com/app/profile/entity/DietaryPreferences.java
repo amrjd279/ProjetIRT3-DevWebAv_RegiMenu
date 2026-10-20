@@ -4,73 +4,108 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Préférences alimentaires de l'utilisateur.
- * Cet objet est stocké dans l'objet UserProfile.
+ * Préférences alimentaires et allergies d'un utilisateur.
+ * Modèle de domaine sans JPA (persistance assurée via Spring JdbcClient).
  */
 public class DietaryPreferences {
 
+    private Long id;
+
+    // --- ALLERGIES (Sécurité / Santé) ---
+    private boolean allergyPeanut = false;
+    private boolean allergyDairy = false;
+    private boolean allergyGluten = false;
+    private boolean allergyEgg = false;
+    private boolean allergySeafood = false;
+
+    // --- PRÉFÉRENCES (Style de vie) ---
     private boolean vegetarian = false;
     private boolean vegan = false;
     private boolean glutenFree = false;
     private boolean lactoseFree = false;
 
-    public DietaryPreferences() {}
+    private UserProfile profile;
 
-    public DietaryPreferences(boolean vegetarian, boolean vegan, boolean glutenFree, boolean lactoseFree) {
+    public DietaryPreferences() {
+    }
+
+    public DietaryPreferences(
+            boolean allergyPeanut,
+            boolean allergyDairy,
+            boolean allergyGluten,
+            boolean allergyEgg,
+            boolean allergySeafood,
+            boolean vegetarian,
+            boolean vegan,
+            boolean glutenFree,
+            boolean lactoseFree
+    ) {
+        this.allergyPeanut = allergyPeanut;
+        this.allergyDairy = allergyDairy;
+        this.allergyGluten = allergyGluten;
+        this.allergyEgg = allergyEgg;
+        this.allergySeafood = allergySeafood;
         this.vegetarian = vegetarian;
         this.vegan = vegan;
         this.glutenFree = glutenFree;
         this.lactoseFree = lactoseFree;
     }
 
-    public boolean isVegetarian() {
-        return vegetarian;
+    public Long getId() {
+        return id;
     }
 
-    public void setVegetarian(boolean vegetarian) {
-        this.vegetarian = vegetarian;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public boolean isVegan() {
-        return vegan;
-    }
+    public boolean isAllergyPeanut() { return allergyPeanut; }
+    public void setAllergyPeanut(boolean allergyPeanut) { this.allergyPeanut = allergyPeanut; }
 
-    public void setVegan(boolean vegan) {
-        this.vegan = vegan;
-    }
+    public boolean isAllergyDairy() { return allergyDairy; }
+    public void setAllergyDairy(boolean allergyDairy) { this.allergyDairy = allergyDairy; }
 
-    public boolean isGlutenFree() {
-        return glutenFree;
-    }
+    public boolean isAllergyGluten() { return allergyGluten; }
+    public void setAllergyGluten(boolean allergyGluten) { this.allergyGluten = allergyGluten; }
 
-    public void setGlutenFree(boolean glutenFree) {
-        this.glutenFree = glutenFree;
-    }
+    public boolean isAllergyEgg() { return allergyEgg; }
+    public void setAllergyEgg(boolean allergyEgg) { this.allergyEgg = allergyEgg; }
 
-    public boolean isLactoseFree() {
-        return lactoseFree;
-    }
+    public boolean isAllergySeafood() { return allergySeafood; }
+    public void setAllergySeafood(boolean allergySeafood) { this.allergySeafood = allergySeafood; }
 
-    public void setLactoseFree(boolean lactoseFree) {
-        this.lactoseFree = lactoseFree;
-    }
+    public boolean isVegetarian() { return vegetarian; }
+    public void setVegetarian(boolean vegetarian) { this.vegetarian = vegetarian; }
 
-    /**
-     * Convertit les préférences actives en tags compatibles avec l'API Spoonacular.
-     */
+    public boolean isVegan() { return vegan; }
+    public void setVegan(boolean vegan) { this.vegan = vegan; }
+
+    public boolean isGlutenFree() { return glutenFree; }
+    public void setGlutenFree(boolean glutenFree) { this.glutenFree = glutenFree; }
+
+    public boolean isLactoseFree() { return lactoseFree; }
+    public void setLactoseFree(boolean lactoseFree) { this.lactoseFree = lactoseFree; }
+
+    public UserProfile getProfile() { return profile; }
+    public void setProfile(UserProfile profile) { this.profile = profile; }
+
     public List<String> toSpoonacularTags() {
         List<String> tags = new ArrayList<>();
+
         if (vegan) {
             tags.add("vegan");
         } else if (vegetarian) {
             tags.add("vegetarian");
         }
-        if (glutenFree) {
+
+        if (glutenFree || allergyGluten) {
             tags.add("gluten free");
         }
-        if (lactoseFree) {
+
+        if (lactoseFree || allergyDairy) {
             tags.add("dairy free");
         }
+
         return tags;
     }
 }

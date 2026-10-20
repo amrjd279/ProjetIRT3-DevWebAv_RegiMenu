@@ -7,7 +7,7 @@ import java.util.Optional;
 
 /**
  * Contrat de persistance pour les profils utilisateurs.
- * Les requêtes SQL doivent être écrites avec Spring JdbcClient (pas de JPA).
+ * Les requêtes SQL sont écrites avec Spring JdbcClient (pas de JPA conformément au cahier des charges).
  */
 public interface UserProfileRepository {
 
