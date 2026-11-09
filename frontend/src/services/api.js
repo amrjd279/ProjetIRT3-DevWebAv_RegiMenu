@@ -379,3 +379,29 @@ export const updateUserProfile =
 
     return response.data;
   };
+
+/**
+ * =========================================================
+ * FAVORIS
+ * =========================================================
+ */
+
+export const getFavorites = async () => {
+  const response = await axios.get(`${API_BASE_URL}/favorites`);
+  return response.data.map((favorite) => ({
+    id: favorite.recipeId,
+    title: favorite.title,
+    imageUrl: favorite.image || '',
+  }));
+};
+
+export const addFavorite = async (meal) => {
+  await axios.post(`${API_BASE_URL}/favorites/${meal.id}`, {
+    title: meal.title,
+    image: meal.imageUrl || meal.image || '',
+  });
+};
+
+export const removeFavorite = async (recipeId) => {
+  await axios.delete(`${API_BASE_URL}/favorites/${recipeId}`);
+};
