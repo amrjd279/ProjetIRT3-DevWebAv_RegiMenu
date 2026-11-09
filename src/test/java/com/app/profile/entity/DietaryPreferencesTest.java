@@ -1,4 +1,4 @@
-package com.app.profile.entity;
+    package com.app.profile.entity;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +30,8 @@ class DietaryPreferencesTest {
     }
 
     /**
-     * Test 2 (Placeholder Étudiant 2/3 - À toi de jouer !) :
-     *
+     * Test 2 (Placeholder Étudiant 2/3) :
      * Objectif : Vérifier la bonne inclusion des allergies aux œufs et fruits de mer.
-     *
      * Consigne :
      * 1. Instancie un `DietaryPreferences`.
      * 2. Active `setAllergyEgg(true)` et `setAllergySeafood(true)`.
@@ -43,11 +41,15 @@ class DietaryPreferencesTest {
     @Test
     @DisplayName("Devrait inclure les tags d'allergie egg et seafood")
     void studentTask_shouldIncludeAllergiesForEggAndSeafood() {
-        // TODO: ÉTUDIANT - Complète ce test en suivant les consignes ci-dessus !
+        DietaryPreferences preferences = new DietaryPreferences();
+        preferences.setAllergyEgg(true);
+        preferences.setAllergySeafood(true);
+        List<String> tags = preferences.toSpoonacularTags();
+        assertThat(tags).containsExactlyInAnyOrder("egg", "seafood");
     }
 
     /**
-     * Test 3 (Placeholder Étudiant 3/3 - À toi de jouer !) :
+     * Test 3 (Placeholder Étudiant 3/3) :
      *
      * Objectif : Vérifier qu'un profil sans contraintes alimentaires produit une liste de tags vide.
      *
@@ -59,6 +61,8 @@ class DietaryPreferencesTest {
     @Test
     @DisplayName("Devrait renvoyer une liste vide si aucune préférence ni allergie n'est sélectionnée")
     void studentTask_shouldReturnEmptyTagsWhenNoPreferences() {
-        // TODO: ÉTUDIANT - Complète ce test en suivant les consignes ci-dessus !
+        DietaryPreferences preferences = new DietaryPreferences();
+        List<String> tags = preferences.toSpoonacularTags();
+        assertThat(tags).isEmpty();
     }
 }
