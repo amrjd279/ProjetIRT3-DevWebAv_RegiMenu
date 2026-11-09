@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getRecipeDetails } from '../services/api';
-import { addToHistory, isFavorite, toggleFavorite } from '../services/storage';
+import {
+  addFavorite,
+  getFavorites,
+  getRecipeDetails,
+  removeFavorite,
+} from '../services/api';
+import { addToHistory } from '../services/storage';
 import './RecipeDetail.css';
 
 function parseInstructions(instructions) {
@@ -45,6 +50,8 @@ export default function RecipeDetail() {
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [favorite, setFavorite] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
 
   useEffect(() => {
     getRecipeDetails(id)
@@ -54,7 +61,33 @@ export default function RecipeDetail() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    getFavorites()
+      .then((favorites) => {
+        setFavorite(favorites.some((item) => String(item.id) === String(id)));
+      })
+      .catch((error) => {
+        console.error('Impossible de charger les favoris.', error);
+      });
   }, [id]);
+
+  const handleFavorite = async () => {
+    if (!recipe || savingFavorite) return;
+
+    setSavingFavorite(true);
+    try {
+      if (favorite) {
+        await removeFavorite(recipe.id);
+      } else {
+        await addFavorite(recipe);
+      }
+      setFavorite((current) => !current);
+    } catch (error) {
+      console.error('Impossible de modifier le favori.', error);
+    } finally {
+      setSavingFavorite(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -94,13 +127,11 @@ export default function RecipeDetail() {
           </div>
           <button
             type="button"
-            className={`favorite-button ${recipe && isFavorite(recipe.id) ? 'is-favorite' : ''}`}
-            onClick={() => {
-              toggleFavorite(recipe);
-              setRecipe((current) => ({ ...current }));
-            }}
+            className={`favorite-button ${favorite ? 'is-favorite' : ''}`}
+            onClick={handleFavorite}
+            disabled={savingFavorite}
           >
-            {isFavorite(recipe.id) ? '♥ Retirer des favoris' : '♡ Ajouter aux favoris'}
+            {favorite ? '♥ Retirer des favoris' : '♡ Ajouter aux favoris'}
           </button>
         </div>
       </div>
