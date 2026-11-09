@@ -36,3 +36,10 @@ CREATE TABLE IF NOT EXISTS daily_meals (
     is_vegan BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_daily_meal_menu FOREIGN KEY (daily_menu_id) REFERENCES daily_menus(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS favorite_meals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id BIGINT NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
+    image VARCHAR(512)
+);

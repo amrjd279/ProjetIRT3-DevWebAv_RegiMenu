@@ -1,14 +1,49 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isFavorite, toggleFavorite } from '../services/storage';
+import { addFavorite, getFavorites, removeFavorite } from '../services/api';
 import './MealCard.css';
 
 export default function MealCard({ meal, onFavoriteChange }) {
   const navigate = useNavigate();
+  const [favorite, setFavorite] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
 
-  const handleFavorite = (event) => {
+  useEffect(() => {
+    let active = true;
+    getFavorites()
+      .then((favorites) => {
+        if (active) {
+          setFavorite(favorites.some((item) => String(item.id) === String(meal.id)));
+        }
+      })
+      .catch((error) => {
+        console.error('Impossible de charger les favoris.', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [meal.id]);
+
+  const handleFavorite = async (event) => {
     event.stopPropagation();
-    const favorite = toggleFavorite(meal);
-    onFavoriteChange?.(meal.id, favorite);
+    if (savingFavorite) return;
+
+    setSavingFavorite(true);
+    try {
+      if (favorite) {
+        await removeFavorite(meal.id);
+      } else {
+        await addFavorite(meal);
+      }
+      const nextFavorite = !favorite;
+      setFavorite(nextFavorite);
+      onFavoriteChange?.(meal.id, nextFavorite);
+    } catch (error) {
+      console.error('Impossible de modifier le favori.', error);
+    } finally {
+      setSavingFavorite(false);
+    }
   };
 
   return (
@@ -19,11 +54,12 @@ export default function MealCard({ meal, onFavoriteChange }) {
       <div className="meal-info">
         <button
           type="button"
-          className={`favorite-button ${isFavorite(meal.id) ? 'is-favorite' : ''}`}
+          className={`favorite-button ${favorite ? 'is-favorite' : ''}`}
           onClick={handleFavorite}
-          aria-label={isFavorite(meal.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          disabled={savingFavorite}
+          aria-label={favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         >
-          {isFavorite(meal.id) ? '♥ Favori' : '♡ Ajouter aux favoris'}
+          {favorite ? '♥ Favori' : '♡ Ajouter aux favoris'}
         </button>
         <h3>{meal.title}</h3>
         <p className="meal-time">{meal.readyInMinutes} min</p>
