@@ -106,6 +106,18 @@ public class DietaryPreferences {
             tags.add("dairy free");
         }
 
+        if (allergyPeanut) {
+            tags.add("peanut");
+        }
+
+        if (allergyEgg) {
+            tags.add("egg");
+        }
+
+        if (allergySeafood) {
+            tags.add("seafood");
+        }
+
         return tags;
     }
 }
