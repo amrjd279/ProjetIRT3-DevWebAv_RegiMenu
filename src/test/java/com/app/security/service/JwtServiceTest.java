@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -40,12 +42,15 @@ class JwtServiceTest {
     // 3. Vérifier avec assertFalse(jwtService.validateToken(token, userB)).
     // N'oubliez pas d'ajouter @Test au-dessus de la méthode !
     // =========================================================================
-    /*
     @Test
     void shouldRejectTokenForAnotherUser() {
-        // À compléter
+        SecurityUser userA = new SecurityUser(1L, "bastien", "bastien@regimenu.com", "hashed", "ROLE_USER");
+        SecurityUser userB = new SecurityUser(2L, "alice", "alice@regimenu.com", "hashed", "ROLE_USER");
+
+        String token = jwtService.generateToken(userA);
+        assertFalse(jwtService.validateToken(token, userB));
     }
-    */
+
 
     // =========================================================================
     // TODO: ÉTUDIANT (Test 3/3) — Vérifier qu'un jeton expiré lève ExpiredJwtException
@@ -55,10 +60,12 @@ class JwtServiceTest {
     // 3. Vérifier avec assertThrows(io.jsonwebtoken.ExpiredJwtException.class, ...)
     //    lors de l'appel à jwtService.extractUsername(token) ou validateToken(token, user).
     // =========================================================================
-    /*
     @Test
     void shouldRejectExpiredToken() {
-        // À compléter
+        JwtService expiredJwtService = new JwtService(TEST_SECRET, -1000L);
+        SecurityUser user = new SecurityUser(1L, "bastien", "bastien@regimenu.com", "hashed", "ROLE_USER");
+        String token = expiredJwtService.generateToken(user);
+        assertThrows(io.jsonwebtoken.ExpiredJwtException.class, () -> expiredJwtService.extractUsername(token));
     }
-    */
+
 }

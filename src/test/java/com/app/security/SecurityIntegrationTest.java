@@ -2,6 +2,9 @@ package com.app.security;
 
 import com.app.menu.model.MealsResponseDto;
 import com.app.menu.service.MenuService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,12 +57,48 @@ class SecurityIntegrationTest {
     // 3. Envoyer un GET /api/auth/me avec le header .header("Authorization", "Bearer " + token)
     //    et vérifier que le statut est 200 OK et que le username retourné correspond.
     // =========================================================================
-    /*
     @Test
     void shouldRegisterLoginAndAccessAuthenticatedEndpoint() throws Exception {
-        // À compléter
+        // Étape 1 : Register
+        String registerJson = """
+                {
+                    "username": "testuser",
+                    "email": "testuser@regimenu.com",
+                    "password": "password"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType("application/json")
+                .content(registerJson))
+                .andExpect(status().isCreated());
+
+        // Étape 2 : Login
+        String loginJson = """
+                {
+                    "identifier": "testuser@regimenu.com",
+                    "password": "password"
+                }
+                """;
+
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
+                .contentType("application/json")
+                .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Extraire le token
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(loginResponse);
+        String token = jsonNode.get("token").asText();
+
+        // Étape 3 : Accéder à l'endpoint authentifié
+        mockMvc.perform(get("/api/auth/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
     }
-    */
 
     // =========================================================================
     // TODO: ÉTUDIANT (Test 3/3) — Vérifier l'isolation des rôles (ROLE_USER vs ROLE_ADMIN)
@@ -68,10 +107,46 @@ class SecurityIntegrationTest {
     // 2. Appeler une route réservée aux admins (ex: mockMvc.perform(get("/api/admin/users").header(...))).
     // 3. Vérifier que Spring Security bloque l'accès avec status().isForbidden() (403).
     // =========================================================================
-    /*
     @Test
     void shouldForbidAdminEndpointForStandardUser() throws Exception {
-        // À compléter
+        // Étape 1 : Register un utilisateur standard
+        String registerJson = """
+                {
+                    "username": "standarduser",
+                    "email": "standarduser@regimenu.com",
+                    "password": "password"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType("application/json")
+                .content(registerJson))
+                .andExpect(status().isCreated());
+
+        // Étape 2 : Login
+        String loginJson = """
+                {
+                    "identifier": "standarduser@regimenu.com",
+                    "password": "password"
+                }
+                """;
+
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
+                .contentType("application/json")
+                .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Extraire le token
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(loginResponse);
+        String token = jsonNode.get("token").asText();
+
+        // Étape 3 : Appeler une route réservée aux admins
+        mockMvc.perform(get("/api/admin/users")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
     }
-    */
 }
