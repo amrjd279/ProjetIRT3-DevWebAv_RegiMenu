@@ -382,6 +382,38 @@ export const updateUserProfile =
 
 /**
  * =========================================================
+ * ADMINISTRATION
+ * =========================================================
+ */
+
+const adminHeaders = (adminId) => ({
+  'X-Admin-User-Id': adminId
+});
+
+export const getAdminUsers = async (adminId) => {
+  const response = await axios.get(`${API_BASE_URL}/admin/users`, {
+    headers: adminHeaders(adminId)
+  });
+  return response.data;
+};
+
+export const suspendAdminUser = async (adminId, userId) => {
+  const response = await axios.put(
+    `${API_BASE_URL}/admin/users/${userId}/suspend`,
+    null,
+    { headers: adminHeaders(adminId) }
+  );
+  return response.data;
+};
+
+export const deleteAdminUser = async (adminId, userId) => {
+  await axios.delete(`${API_BASE_URL}/admin/users/${userId}`, {
+    headers: adminHeaders(adminId)
+  });
+};
+
+/**
+ * =========================================================
  * FAVORIS
  * =========================================================
  */

@@ -1,0 +1,194 @@
+.admin-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.admin-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+.admin-eyebrow {
+  color: var(--primary-700);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.admin-heading h1 {
+  margin: 6px 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.admin-heading p:last-child {
+  color: var(--slate-600);
+}
+
+.admin-total {
+  min-width: 160px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-100);
+  color: var(--primary-700);
+  text-align: center;
+}
+
+.admin-total strong,
+.admin-total span {
+  display: block;
+}
+
+.admin-total strong {
+  font-size: 2rem;
+}
+
+.admin-access {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  background: white;
+}
+
+.admin-access label {
+  display: block;
+  flex: 1;
+  color: var(--slate-600);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-access input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--slate-300);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.admin-access button,
+.admin-actions button {
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-access button {
+  background: var(--primary-600);
+  color: white;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--slate-100);
+  white-space: nowrap;
+}
+
+.admin-table th {
+  color: var(--slate-600);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.admin-table td:first-child strong,
+.admin-table td:first-child span {
+  display: block;
+}
+
+.admin-table td:first-child span {
+  color: var(--slate-600);
+  font-size: 0.85rem;
+}
+
+.request-count {
+  color: var(--primary-700);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.status-active {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.status-suspended {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.suspend-button {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.delete-button {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.admin-error {
+  padding: 14px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-empty {
+  padding: 40px;
+  color: var(--slate-600);
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .admin-heading,
+  .admin-access {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

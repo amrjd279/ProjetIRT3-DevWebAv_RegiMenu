@@ -21,6 +21,10 @@ public class UserProfile {
      */
     private int requestCount = 0;
 
+    private UserRole role = UserRole.ROLE_USER;
+
+    private AccountStatus status = AccountStatus.ACTIVE;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public UserProfile() {
@@ -81,6 +85,22 @@ public class UserProfile {
 
     public void incrementRequestCount() {
         this.requestCount++;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role == null ? UserRole.ROLE_USER : role;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status == null ? AccountStatus.ACTIVE : status;
     }
 
     public LocalDateTime getCreatedAt() {
