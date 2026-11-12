@@ -16,6 +16,8 @@ public record UserProfileDto(
         boolean isVegan,
         boolean isGlutenFree,
         boolean isLactoseFree,
-        int requestCount
+        int requestCount,
+        String role,
+        String status
 ) {
 }

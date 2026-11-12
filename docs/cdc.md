@@ -116,9 +116,9 @@ Une release est considérée comme terminée uniquement lorsque :
     * Isolation des données par utilisateur connecté (`@AuthenticationPrincipal`) pour les menus, les préférences et les favoris (`user_profile_id` sur `favorite_meals`).
     * Frontend : pages/modales de Connexion & Inscription, état connecté dans la Navbar, blocage du bouton "Régénérer" pour les visiteurs anonymes.
   * **Module Administration (`admin`) :**
-    * Endpoint `GET /api/admin/users` : liste des utilisateurs et audit du nombre de requêtes API consommées (`requestCount`).
-    * Gestion des comptes : suspension ou suppression d'un utilisateur abusif.
-    * Dashboard frontend `/admin` dédié au profil Administrateur.
+    * Endpoint `GET /api/admin/users` : liste des utilisateurs et audit du nombre de requêtes API consommées (`requestCount`) ✅
+    * Gestion des comptes : suspension ou suppression d'un utilisateur abusif ✅
+    * Dashboard frontend `/admin` dédié au profil Administrateur ✅
   * **Tests de Sécurité & Modularité :**
     * Tests Spring Security (`@WithMockUser` / `MockMvc`) vérifiant les accès 401/403 et tests Spring Modulith mis à jour.
 

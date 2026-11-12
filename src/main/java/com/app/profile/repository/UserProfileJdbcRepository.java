@@ -1,7 +1,9 @@
 package com.app.profile.repository;
 
 import com.app.profile.entity.DietaryPreferences;
+import com.app.profile.entity.AccountStatus;
 import com.app.profile.entity.UserProfile;
+import com.app.profile.entity.UserRole;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -30,7 +32,7 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
             SELECT id, username, email,
                    allergy_peanut, allergy_dairy, allergy_gluten, allergy_egg, allergy_seafood,
                    is_vegetarian, is_vegan, is_gluten_free, is_lactose_free,
-                   request_count, created_at
+                   request_count, role, status, created_at
             FROM user_profiles
             WHERE id = :id
             """;
@@ -46,7 +48,7 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
             SELECT id, username, email,
                    allergy_peanut, allergy_dairy, allergy_gluten, allergy_egg, allergy_seafood,
                    is_vegetarian, is_vegan, is_gluten_free, is_lactose_free,
-                   request_count, created_at
+                   request_count, role, status, created_at
             FROM user_profiles
             WHERE email = :email
             """;
@@ -62,7 +64,7 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
             SELECT id, username, email,
                    allergy_peanut, allergy_dairy, allergy_gluten, allergy_egg, allergy_seafood,
                    is_vegetarian, is_vegan, is_gluten_free, is_lactose_free,
-                   request_count, created_at
+                   request_count, role, status, created_at
             FROM user_profiles
             WHERE username = :username
             """;
@@ -78,7 +80,7 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
             SELECT id, username, email,
                    allergy_peanut, allergy_dairy, allergy_gluten, allergy_egg, allergy_seafood,
                    is_vegetarian, is_vegan, is_gluten_free, is_lactose_free,
-                   request_count, created_at
+                   request_count, role, status, created_at
             FROM user_profiles
             ORDER BY id ASC
             """;
@@ -97,13 +99,13 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
                     username, email,
                     allergy_peanut, allergy_dairy, allergy_gluten, allergy_egg, allergy_seafood,
                     is_vegetarian, is_vegan, is_gluten_free, is_lactose_free,
-                    request_count, created_at
+                    request_count, role, status, created_at
                 )
                 VALUES (
                     :username, :email,
                     :allergyPeanut, :allergyDairy, :allergyGluten, :allergyEgg, :allergySeafood,
                     :isVegetarian, :isVegan, :isGlutenFree, :isLactoseFree,
-                    :requestCount, :createdAt
+                    :requestCount, :role, :status, :createdAt
                 )
                 """;
 
@@ -120,6 +122,8 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
                     .param("isGlutenFree", prefs != null && prefs.isGlutenFree())
                     .param("isLactoseFree", prefs != null && prefs.isLactoseFree())
                     .param("requestCount", userProfile.getRequestCount())
+                    .param("role", userProfile.getRole().name())
+                    .param("status", userProfile.getStatus().name())
                     .param("createdAt", userProfile.getCreatedAt() != null ? userProfile.getCreatedAt() : LocalDateTime.now())
                     .update(keyHolder, "id");
 
@@ -141,7 +145,9 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
                     is_vegan = :isVegan,
                     is_gluten_free = :isGlutenFree,
                     is_lactose_free = :isLactoseFree,
-                    request_count = :requestCount
+                    request_count = :requestCount,
+                    role = :role,
+                    status = :status
                 WHERE id = :id
                 """;
 
@@ -158,10 +164,27 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
                     .param("isGlutenFree", prefs != null && prefs.isGlutenFree())
                     .param("isLactoseFree", prefs != null && prefs.isLactoseFree())
                     .param("requestCount", userProfile.getRequestCount())
+                    .param("role", userProfile.getRole().name())
+                    .param("status", userProfile.getStatus().name())
                     .param("id", userProfile.getId())
                     .update();
         }
         return userProfile;
+    }
+
+    @Override
+    public void updateStatus(Long id, AccountStatus status) {
+        jdbcClient.sql("UPDATE user_profiles SET status = :status WHERE id = :id")
+                .param("status", status.name())
+                .param("id", id)
+                .update();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jdbcClient.sql("DELETE FROM user_profiles WHERE id = :id")
+                .param("id", id)
+                .update();
     }
 
     private UserProfile mapRowToUserProfile(java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -180,6 +203,8 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
         );
         profile.setPreferences(prefs);
         profile.setRequestCount(rs.getInt("request_count"));
+        profile.setRole(UserRole.valueOf(rs.getString("role")));
+        profile.setStatus(AccountStatus.valueOf(rs.getString("status")));
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {
             profile.setCreatedAt(ts.toLocalDateTime());

@@ -15,6 +15,7 @@ import Favoris from './pages/Favoris';
 import Historique from './pages/Historique';
 
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 import './App.css';
 
@@ -66,6 +67,11 @@ function App() {
           <Route
             path="/profil"
             element={<Profile />}
+          />
+
+          <Route
+            path="/admin"
+            element={<Admin />}
           />
 
         </Routes>

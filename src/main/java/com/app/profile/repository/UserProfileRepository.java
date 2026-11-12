@@ -1,6 +1,7 @@
 package com.app.profile.repository;
 
 import com.app.profile.entity.UserProfile;
+import com.app.profile.entity.AccountStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +21,8 @@ public interface UserProfileRepository {
     List<UserProfile> findAll();
 
     UserProfile save(UserProfile userProfile);
+
+    void updateStatus(Long id, AccountStatus status);
+
+    void deleteById(Long id);
 }

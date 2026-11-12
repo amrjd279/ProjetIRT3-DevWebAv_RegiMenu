@@ -96,6 +96,13 @@ export default function Navbar() {
           Profil
         </Link>
 
+        <Link
+          to="/admin"
+          className={`nav-item ${location.pathname === '/admin' ? 'active' : ''}`}
+        >
+          Administration
+        </Link>
+
       </nav>
 
 

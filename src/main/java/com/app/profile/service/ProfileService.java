@@ -167,7 +167,9 @@ public class ProfileService {
                 preferences.isVegan(),
                 preferences.isGlutenFree(),
                 preferences.isLactoseFree(),
-                profile.getRequestCount()
+                profile.getRequestCount(),
+                profile.getRole().name(),
+                profile.getStatus().name()
         );
     }
 }
