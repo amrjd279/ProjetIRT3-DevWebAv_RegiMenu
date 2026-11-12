@@ -6,9 +6,11 @@ import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import com.app.menu.model.MealsResponseDto;
 import com.app.menu.service.MenuService;
+import com.app.security.SecurityUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +42,8 @@ public class MenuController {
      */
     @GetMapping("/today")
     public ResponseEntity<MealsResponseDto> getTodayMeals(
-            @RequestParam(name = "userId", required = false) Long userId) {
+            @AuthenticationPrincipal SecurityUser currentUser) {
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
         log.info("Requête GET /api/meals/today reçue pour userId={}", userId);
         MealsResponseDto response = menuService.getTodayMenu(userId);
         return ResponseEntity.ok(response);
@@ -52,7 +55,8 @@ public class MenuController {
      */
     @PostMapping("/regenerate")
     public ResponseEntity<MealsResponseDto> regenerateMeals(
-            @RequestParam(name = "userId", required = false) Long userId) {
+            @AuthenticationPrincipal SecurityUser currentUser) {
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
         log.info("Requête POST /api/meals/regenerate reçue pour userId={}", userId);
         MealsResponseDto response = menuService.regenerateTodayMenu(userId);
         return ResponseEntity.ok(response);
