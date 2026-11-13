@@ -1,0 +1,10 @@
+target/
+.git/
+.idea/
+.vscode/
+frontend/
+docs/
+*.md
+.env
+.env.*
+src/main/resources/application-local.yml
