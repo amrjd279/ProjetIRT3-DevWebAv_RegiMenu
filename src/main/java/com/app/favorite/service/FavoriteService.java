@@ -16,15 +16,15 @@ public class FavoriteService {
         this.favoriteJdbcRepository = favoriteJdbcRepository;
     }
 
-    public List<FavoriteMeal> getAllFavorites() {
-        return favoriteJdbcRepository.findAll();
+    public List<FavoriteMeal> getAllFavorites(Long userProfileId) {
+        return favoriteJdbcRepository.findAll(userProfileId);
     }
 
-    public void addFavorite(Long recipeId, String title, String image) {
-        favoriteJdbcRepository.save(recipeId, title, image);
+    public void addFavorite(Long userProfileId, Long recipeId, String title, String image) {
+        favoriteJdbcRepository.save(userProfileId, recipeId, title, image);
     }
 
-    public void removeFavorite(Long recipeId) {
-        favoriteJdbcRepository.deleteByRecipeId(recipeId);
+    public void removeFavorite(Long userProfileId, Long recipeId) {
+        favoriteJdbcRepository.deleteByRecipeId(userProfileId, recipeId);
     }
 }

@@ -20,9 +20,15 @@ public class FavoriteJdbcRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    public List<FavoriteMeal> findAll() {
-        String sql = "SELECT id, recipe_id, title, image FROM favorite_meals ORDER BY id DESC";
+    public List<FavoriteMeal> findAll(Long userProfileId) {
+        String sql = """
+                SELECT id, recipe_id, title, image
+                FROM favorite_meals
+                WHERE user_profile_id = :userProfileId
+                ORDER BY id DESC
+                """;
         return jdbcClient.sql(sql)
+                .param("userProfileId", userProfileId)
                 .query((rs, rowNum) -> {
                     FavoriteMeal meal = new FavoriteMeal();
                     meal.setId(rs.getLong("id"));
@@ -34,22 +40,40 @@ public class FavoriteJdbcRepository {
                 .list();
     }
 
-    public void save(Long recipeId, String title, String image) {
-        Integer count = jdbcClient.sql("SELECT COUNT(*) FROM favorite_meals WHERE recipe_id = :recipeId")
+    public void save(Long userProfileId, Long recipeId, String title, String image) {
+        Integer count = jdbcClient.sql("""
+                SELECT COUNT(*)
+                FROM favorite_meals
+                WHERE user_profile_id = :userProfileId
+                  AND recipe_id = :recipeId
+                """)
+                .param("userProfileId", userProfileId)
                 .param("recipeId", recipeId)
                 .query(Integer.class)
                 .single();
 
         if (count != null && count > 0) {
-            String updateSql = "UPDATE favorite_meals SET title = :title, image = :image WHERE recipe_id = :recipeId";
+            String updateSql = """
+                    UPDATE favorite_meals
+                    SET title = :title, image = :image
+                    WHERE user_profile_id = :userProfileId
+                      AND recipe_id = :recipeId
+                    """;
             jdbcClient.sql(updateSql)
+                    .param("userProfileId", userProfileId)
                     .param("title", title)
                     .param("image", image)
                     .param("recipeId", recipeId)
                     .update();
         } else {
-            String insertSql = "INSERT INTO favorite_meals (recipe_id, title, image) VALUES (:recipeId, :title, :image)";
+            String insertSql = """
+                    INSERT INTO favorite_meals
+                        (user_profile_id, recipe_id, title, image)
+                    VALUES
+                        (:userProfileId, :recipeId, :title, :image)
+                    """;
             jdbcClient.sql(insertSql)
+                    .param("userProfileId", userProfileId)
                     .param("recipeId", recipeId)
                     .param("title", title)
                     .param("image", image)
@@ -57,9 +81,14 @@ public class FavoriteJdbcRepository {
         }
     }
 
-    public void deleteByRecipeId(Long recipeId) {
-        String sql = "DELETE FROM favorite_meals WHERE recipe_id = :recipeId";
+    public void deleteByRecipeId(Long userProfileId, Long recipeId) {
+        String sql = """
+                DELETE FROM favorite_meals
+                WHERE user_profile_id = :userProfileId
+                  AND recipe_id = :recipeId
+                """;
         jdbcClient.sql(sql)
+                .param("userProfileId", userProfileId)
                 .param("recipeId", recipeId)
                 .update();
     }
