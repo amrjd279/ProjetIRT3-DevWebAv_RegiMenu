@@ -2,7 +2,7 @@
 # Exemple dans IntelliJ : Active profiles = local,postgres
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/regimenu}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/regimenu}
     driver-class-name: org.postgresql.Driver
     username: ${SPRING_DATASOURCE_USERNAME:regimenu}
     password: ${SPRING_DATASOURCE_PASSWORD:regimenu_dev}
