@@ -4,6 +4,45 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://localhost:8081/api';
 
+const TOKEN_KEY = 'regimenu.token';
+
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
+
+export const saveToken = (token) => localStorage.setItem(TOKEN_KEY, token);
+
+export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+axios.interceptors.request.use((config) => {
+  const token = getToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export const login = async (identifier, password) => {
+  const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+    identifier,
+    password,
+  });
+  saveToken(response.data.token);
+  return response.data;
+};
+
+export const register = async (username, email, password) => {
+  const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+    username,
+    email,
+    password,
+  });
+  saveToken(response.data.token);
+  return response.data;
+};
+
+export const logout = () => clearToken();
+
 /**
  * =========================================================
  * MENUS
@@ -303,46 +342,6 @@ export const getMealDetails =
  */
 
 /**
- * Ancienne méthode :
- *
- * GET /api/profile/{id}
- */
-export const getUserProfileById =
-  async (userId) => {
-
-    const response = await axios.get(
-      `${API_BASE_URL}/profile/${userId}`
-    );
-
-    return response.data;
-  };
-
-
-/**
- * Ancienne méthode conservée.
- *
- * Met à jour les préférences avec les anciens endpoints.
- */
-export const updateUserPreferences =
-  async (
-    preferences,
-    userId = null
-  ) => {
-
-    const url = userId
-      ? `${API_BASE_URL}/profile/${userId}/preferences`
-      : `${API_BASE_URL}/profile/preferences`;
-
-    const response = await axios.put(
-      url,
-      preferences
-    );
-
-    return response.data;
-  };
-
-
-/**
  * =========================================================
  * US4.2
  * =========================================================
@@ -386,30 +385,21 @@ export const updateUserProfile =
  * =========================================================
  */
 
-const adminHeaders = (adminId) => ({
-  'X-Admin-User-Id': adminId
-});
-
-export const getAdminUsers = async (adminId) => {
-  const response = await axios.get(`${API_BASE_URL}/admin/users`, {
-    headers: adminHeaders(adminId)
-  });
+export const getAdminUsers = async () => {
+  const response = await axios.get(`${API_BASE_URL}/admin/users`);
   return response.data;
 };
 
-export const suspendAdminUser = async (adminId, userId) => {
+export const suspendAdminUser = async (userId) => {
   const response = await axios.put(
     `${API_BASE_URL}/admin/users/${userId}/suspend`,
-    null,
-    { headers: adminHeaders(adminId) }
+    null
   );
   return response.data;
 };
 
-export const deleteAdminUser = async (adminId, userId) => {
-  await axios.delete(`${API_BASE_URL}/admin/users/${userId}`, {
-    headers: adminHeaders(adminId)
-  });
+export const deleteAdminUser = async (userId) => {
+  await axios.delete(`${API_BASE_URL}/admin/users/${userId}`);
 };
 
 /**

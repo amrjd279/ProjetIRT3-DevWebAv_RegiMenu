@@ -1,4 +1,6 @@
 package com.app.profile.service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.profile.dto.CreateProfileDto;
 import com.app.profile.dto.UpdatePreferencesDto;
@@ -6,9 +8,6 @@ import com.app.profile.dto.UserProfileDto;
 import com.app.profile.entity.DietaryPreferences;
 import com.app.profile.entity.UserProfile;
 import com.app.profile.repository.UserProfileRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service contenant la logique métier du profil.
@@ -124,24 +123,6 @@ public class ProfileService {
                 .ifPresent(
                         UserProfile::incrementRequestCount
                 );
-    }
-
-    public UserProfile getOrCreateDefaultProfile() {
-        return profileRepository
-                .findAll()
-                .stream()
-                .findFirst()
-                .orElseGet(() -> {
-                    UserProfile defaultUser =
-                            new UserProfile(
-                                    "Visiteur",
-                                    "user@regimenu.com"
-                            );
-
-                    return profileRepository.save(
-                            defaultUser
-                    );
-                });
     }
 
     private UserProfileDto toDto(

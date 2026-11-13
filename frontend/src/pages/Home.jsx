@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getTodayMeals, regenerateMeals, getUserProfile } from '../services/api';
+import {
+  getTodayMeals,
+  getRandomMeals,
+  regenerateMeals,
+  getUserProfile
+} from '../services/api';
 import MealCard from '../components/MealCard';
 import './Home.css';
 
@@ -36,8 +41,9 @@ export default function Home() {
   const handleRegenerate = async () => {
     setRefreshing(true);
     try {
-      const userId = profile ? profile.id : null;
-      const newMeals = await regenerateMeals(userId);
+      const newMeals = profile
+        ? await regenerateMeals(profile.id)
+        : await getRandomMeals();
       setMeals(newMeals);
     } catch (error) {
       console.error("Erreur lors de la régénération du menu", error);

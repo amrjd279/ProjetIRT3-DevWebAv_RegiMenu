@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   deleteAdminUser,
   getAdminUsers,
@@ -7,23 +7,15 @@ import {
 import './Admin.css';
 
 export default function Admin() {
-  const [adminId, setAdminId] = useState(
-    () => localStorage.getItem('regimenu.adminId') || ''
-  );
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const loadUsers = async () => {
-    if (!adminId) {
-      setUsers([]);
-      return;
-    }
     setLoading(true);
     setError('');
     try {
-      setUsers(await getAdminUsers(adminId));
-      localStorage.setItem('regimenu.adminId', adminId);
+      setUsers(await getAdminUsers());
     } catch (requestError) {
       setError(
         requestError.response?.data?.detail ||
@@ -35,32 +27,27 @@ export default function Admin() {
     }
   };
 
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
   const suspend = async (userId) => {
     try {
-      await suspendAdminUser(adminId, userId);
+      await suspendAdminUser(userId);
       await loadUsers();
     } catch (requestError) {
-      setError(
-        requestError.response?.data?.detail ||
-        requestError.response?.data?.message ||
-        'La suspension a échoué.'
-      );
+      setError(requestError.response?.data?.message || 'La suspension a échoué.');
     }
   };
 
   const remove = async (userId) => {
-    if (!window.confirm('Supprimer définitivement cet utilisateur ?')) {
-      return;
-    }
+    if (!window.confirm('Supprimer définitivement cet utilisateur ?')) return;
+
     try {
-      await deleteAdminUser(adminId, userId);
+      await deleteAdminUser(userId);
       await loadUsers();
     } catch (requestError) {
-      setError(
-        requestError.response?.data?.detail ||
-        requestError.response?.data?.message ||
-        'La suppression a échoué.'
-      );
+      setError(requestError.response?.data?.message || 'La suppression a échoué.');
     }
   };
 
@@ -77,24 +64,6 @@ export default function Admin() {
           <span>requêtes API</span>
         </div>
       </div>
-
-      <form className="admin-access" onSubmit={(event) => {
-        event.preventDefault();
-        loadUsers();
-      }}>
-        <label htmlFor="admin-id">Identifiant de votre compte administrateur</label>
-        <div className="admin-access-row">
-          <input
-            id="admin-id"
-            value={adminId}
-            onChange={(event) => setAdminId(event.target.value)}
-            placeholder="Ex. 1"
-            inputMode="numeric"
-            required
-          />
-          <button type="submit">Charger le tableau</button>
-        </div>
-      </form>
 
       {error && <p className="admin-error" role="alert">{error}</p>}
       {loading ? (
@@ -127,7 +96,7 @@ export default function Admin() {
                     <button
                       type="button"
                       className="suspend-button"
-                      disabled={user.status === 'SUSPENDED' || String(user.id) === String(adminId)}
+                      disabled={user.status === 'SUSPENDED'}
                       onClick={() => suspend(user.id)}
                     >
                       Suspendre
@@ -135,7 +104,7 @@ export default function Admin() {
                     <button
                       type="button"
                       className="delete-button"
-                      disabled={user.role === 'ROLE_ADMIN' || String(user.id) === String(adminId)}
+                      disabled={user.role === 'ROLE_ADMIN'}
                       onClick={() => remove(user.id)}
                     >
                       Supprimer

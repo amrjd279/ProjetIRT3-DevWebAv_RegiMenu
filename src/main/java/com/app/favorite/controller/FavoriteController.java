@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.app.favorite.entity.FavoriteMeal;
 import com.app.favorite.service.FavoriteService;
+import com.app.security.SecurityUser;
 
 @RestController
 @RequestMapping("/api/favorites")
@@ -28,26 +30,32 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FavoriteMeal>> getAllFavorites() {
-        List<FavoriteMeal> favorites = favoriteService.getAllFavorites();
+    public ResponseEntity<List<FavoriteMeal>> getAllFavorites(
+            @AuthenticationPrincipal SecurityUser currentUser) {
+        List<FavoriteMeal> favorites =
+                favoriteService.getAllFavorites(currentUser.getId());
         return ResponseEntity.ok(favorites);
     }
 
     @PostMapping("/{recipeId}")
     public ResponseEntity<Void> addFavorite(
+            @AuthenticationPrincipal SecurityUser currentUser,
             @PathVariable Long recipeId,
             @RequestBody(required = false) Map<String, String> payload) {
         
         String title = (payload != null && payload.containsKey("title")) ? payload.get("title") : "Recette " + recipeId;
         String image = (payload != null && payload.containsKey("image")) ? payload.get("image") : "";
 
-        favoriteService.addFavorite(recipeId, title, image);
+        favoriteService.addFavorite(
+                currentUser.getId(), recipeId, title, image);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<Void> removeFavorite(@PathVariable Long recipeId) {
-        favoriteService.removeFavorite(recipeId);
+    public ResponseEntity<Void> removeFavorite(
+            @AuthenticationPrincipal SecurityUser currentUser,
+            @PathVariable Long recipeId) {
+        favoriteService.removeFavorite(currentUser.getId(), recipeId);
         return ResponseEntity.ok().build();
     }
 }

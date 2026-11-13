@@ -1,11 +1,10 @@
 package com.app.security;
+import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Représentation de l'utilisateur authentifié exposée par le module Security.
@@ -18,13 +17,25 @@ public class SecurityUser implements UserDetails {
     private final String email;
     private final String passwordHash;
     private final String role;
+    private final String status;
 
     public SecurityUser(Long id, String username, String email, String passwordHash, String role) {
+        this(id, username, email, passwordHash, role, "ACTIVE");
+    }
+
+    public SecurityUser(
+            Long id,
+            String username,
+            String email,
+            String passwordHash,
+            String role,
+            String status) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = (role != null && !role.isBlank()) ? role : "ROLE_USER";
+        this.status = (status != null && !status.isBlank()) ? status : "ACTIVE";
     }
 
     public Long getId() {
@@ -72,6 +83,6 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return "ACTIVE".equalsIgnoreCase(status);
     }
 }

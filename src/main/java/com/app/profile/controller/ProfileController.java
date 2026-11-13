@@ -1,20 +1,18 @@
 package com.app.profile.controller;
 
-import com.app.profile.dto.CreateProfileDto;
-import com.app.profile.dto.UpdatePreferencesDto;
-import com.app.profile.dto.UserProfileDto;
-import com.app.profile.entity.UserProfile;
-import com.app.profile.service.ProfileService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.app.profile.dto.UpdatePreferencesDto;
+import com.app.profile.dto.UserProfileDto;
+import com.app.profile.service.ProfileService;
+import com.app.security.SecurityUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 /**
  * Controller REST du module Profile.
@@ -51,20 +49,11 @@ public class ProfileController {
      */
     @GetMapping
     public ResponseEntity<UserProfileDto>
-    getCurrentProfile() {
-
-        /*
-         * Pour l'instant, l'authentification
-         * n'est pas encore branchée.
-         *
-         * On utilise donc un profil temporaire.
-         */
-        UserProfile profile =
-                profileService.getOrCreateDefaultProfile();
-
+    getCurrentProfile(
+            @AuthenticationPrincipal SecurityUser currentUser) {
         return ResponseEntity.ok(
                 profileService.getProfile(
-                        profile.getId()
+                        currentUser.getId()
                 )
         );
     }
@@ -79,49 +68,14 @@ public class ProfileController {
     @PutMapping
     public ResponseEntity<UserProfileDto>
     updateCurrentProfile(
+            @AuthenticationPrincipal SecurityUser currentUser,
             @RequestBody UpdatePreferencesDto dto
     ) {
-
-        UserProfile profile =
-                profileService.getOrCreateDefaultProfile();
-
         return ResponseEntity.ok(
                 profileService.updatePreferences(
-                        profile.getId(),
+                        currentUser.getId(),
                         dto
                 )
-        );
-    }
-
-    /**
-     * Endpoint existant.
-     *
-     * GET /api/profile/{id}
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<UserProfileDto>
-    getProfileById(
-            @PathVariable Long id
-    ) {
-
-        return ResponseEntity.ok(
-                profileService.getProfile(id)
-        );
-    }
-
-    /**
-     * Endpoint existant.
-     *
-     * POST /api/profile
-     */
-    @PostMapping
-    public ResponseEntity<UserProfileDto>
-    createProfile(
-            @RequestBody CreateProfileDto dto
-    ) {
-
-        return ResponseEntity.ok(
-                profileService.createProfile(dto)
         );
     }
 
@@ -134,29 +88,11 @@ public class ProfileController {
     @PutMapping("/preferences")
     public ResponseEntity<UserProfileDto>
     updateCurrentPreferences(
+            @AuthenticationPrincipal SecurityUser currentUser,
             @RequestBody UpdatePreferencesDto dto
     ) {
 
-        return updateCurrentProfile(dto);
+        return updateCurrentProfile(currentUser, dto);
     }
 
-    /**
-     * Ancien endpoint conservé.
-     *
-     * PUT /api/profile/{id}/preferences
-     */
-    @PutMapping("/{id}/preferences")
-    public ResponseEntity<UserProfileDto>
-    updatePreferencesById(
-            @PathVariable Long id,
-            @RequestBody UpdatePreferencesDto dto
-    ) {
-
-        return ResponseEntity.ok(
-                profileService.updatePreferences(
-                        id,
-                        dto
-                )
-        );
-    }
 }

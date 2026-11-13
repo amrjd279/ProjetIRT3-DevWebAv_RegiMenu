@@ -16,6 +16,8 @@ import Historique from './pages/Historique';
 
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 import './App.css';
 
@@ -72,6 +74,16 @@ function App() {
           <Route
             path="/admin"
             element={<Admin />}
+          />
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/register"
+            element={<Register />}
           />
 
         </Routes>

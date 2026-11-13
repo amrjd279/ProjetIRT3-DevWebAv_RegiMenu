@@ -1,12 +1,13 @@
 package com.app.security.repository;
 
-import com.app.security.SecurityUser;
+import java.util.Optional;
+
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.app.security.SecurityUser;
 
 /**
  * Accès aux données d'authentification dans la table user_profiles via Spring JdbcClient (sans JPA).
@@ -23,7 +24,7 @@ public class AuthUserJdbcRepository {
 
     public Optional<SecurityUser> findByUsernameOrEmail(String identifier) {
         String sql = """
-            SELECT id, username, email, password_hash, role
+            SELECT id, username, email, password_hash, role, status
             FROM user_profiles
             WHERE username = :identifier OR email = :identifier
             """;
@@ -35,7 +36,8 @@ public class AuthUserJdbcRepository {
                         rs.getString("username"),
                         rs.getString("email"),
                         rs.getString("password_hash"),
-                        rs.getString("role")
+                        rs.getString("role"),
+                        rs.getString("status")
                 ))
                 .optional();
     }
