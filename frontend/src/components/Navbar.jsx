@@ -2,6 +2,7 @@ import {
   Link,
   useLocation
 } from 'react-router-dom';
+import { clearToken, getToken } from '../services/api';
 
 import './Navbar.css';
 
@@ -111,13 +112,16 @@ export default function Navbar() {
 
         <button
           className="login-btn"
-          onClick={() =>
-            alert(
-              'Redirection vers Zitadel...'
-            )
-          }
+          onClick={() => {
+            if (getToken()) {
+              clearToken();
+              window.location.reload();
+            } else {
+              window.location.href = '/login';
+            }
+          }}
         >
-          Login
+          {getToken() ? 'Déconnexion' : 'Connexion'}
         </button>
 
       </div>

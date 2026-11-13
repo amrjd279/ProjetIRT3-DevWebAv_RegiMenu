@@ -1,20 +1,22 @@
 package com.app.security.service;
 
-import com.app.security.SecurityUser;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import com.app.security.SecurityUser;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 /**
  * Utilitaire JWT (JWT Utility) utilisant la bibliothèque jjwt 0.12.x.
  * Gère la création, l'extraction des informations (claims) et la validation cryptographique des jetons.
@@ -63,6 +65,7 @@ public class JwtService {
         final String username = extractUsername(token);
         return username != null
                 && username.equals(userDetails.getUsername())
+                && userDetails.isEnabled()
                 && !isTokenExpired(token);
     }
 
