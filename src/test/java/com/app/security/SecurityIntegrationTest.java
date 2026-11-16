@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,9 @@ class SecurityIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     @MockBean
     private MenuService menuService;
@@ -168,5 +172,81 @@ class SecurityIntegrationTest {
         // Origine tierce non autorisée : rejetée immédiatement en 403 Forbidden par le CorsFilter
         mockMvc.perform(get("/api/meals/today").header("Origin", "https://unauthorized-domain.com"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldProtectProfileAndFavoritesEndpointsFromUnauthenticatedAccess() throws Exception {
+        // GET /api/profile sans token -> 401
+        mockMvc.perform(get("/api/profile"))
+                .andExpect(status().isUnauthorized());
+
+        // GET /api/favorites sans token -> 401
+        mockMvc.perform(get("/api/favorites"))
+                .andExpect(status().isUnauthorized());
+
+        // POST /api/favorites/{id} sans token -> 401
+        mockMvc.perform(post("/api/favorites/101"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldAllowAdminAccessForAdminRole() throws Exception {
+        // Le compte 'admin' est seedé automatiquement au démarrage avec le mot de passe 'admin123'
+        String loginJson = """
+                {
+                    "identifier": "admin",
+                    "password": "admin123"
+                }
+                """;
+
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
+                .contentType("application/json")
+                .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String adminToken = objectMapper.readTree(loginResponse).get("token").asText();
+
+        // Accès autorisé à la route d'administration réservée à ROLE_ADMIN
+        mockMvc.perform(get("/api/admin/users")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldRejectAuthenticationForSuspendedUser() throws Exception {
+        // 1. Inscription d'un utilisateur
+        String registerJson = """
+                {
+                    "username": "blockeduser",
+                    "email": "blocked@regimenu.com",
+                    "password": "password123"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType("application/json")
+                .content(registerJson))
+                .andExpect(status().isCreated());
+
+        // 2. Suspension du compte en base de données
+        jdbcClient.sql("UPDATE user_profiles SET status = 'SUSPENDED' WHERE username = 'blockeduser'")
+                .update();
+
+        // 3. Tentative de connexion : rejetée avec 401 car isEnabled() renvoie false
+        String loginJson = """
+                {
+                    "identifier": "blockeduser",
+                    "password": "password123"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType("application/json")
+                .content(loginJson))
+                .andExpect(status().isUnauthorized());
     }
 }
