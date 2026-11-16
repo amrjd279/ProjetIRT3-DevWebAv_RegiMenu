@@ -52,13 +52,10 @@ export const logout = () => clearToken();
 /**
  * Récupère le menu du jour.
  */
-export const getTodayMeals = async (userId = null) => {
+export const getTodayMeals = async () => {
   try {
-    const params = userId ? { userId } : {};
-
     const response = await axios.get(
-      `${API_BASE_URL}/meals/today`,
-      { params }
+      `${API_BASE_URL}/meals/today`
     );
 
     return response.data.meals;
@@ -77,18 +74,9 @@ export const getTodayMeals = async (userId = null) => {
 /**
  * Régénère les repas du jour.
  */
-export const regenerateMeals = async (
-  userId = null
-) => {
-
-  const params = userId
-    ? { userId }
-    : {};
-
+export const regenerateMeals = async () => {
   const response = await axios.post(
-    `${API_BASE_URL}/meals/regenerate`,
-    null,
-    { params }
+    `${API_BASE_URL}/meals/regenerate`
   );
 
   return response.data.meals;
