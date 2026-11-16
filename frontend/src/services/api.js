@@ -6,12 +6,25 @@ const API_BASE_URL =
 
 const TOKEN_KEY = 'regimenu.token';
 
-export const getToken = () => localStorage.getItem(TOKEN_KEY);
+/**
+ * Gestion du token utilisateur.
+ */
+export const getToken = () => {
+  return localStorage.getItem(TOKEN_KEY);
+};
 
-export const saveToken = (token) => localStorage.setItem(TOKEN_KEY, token);
+export const saveToken = (token) => {
+  localStorage.setItem(TOKEN_KEY, token);
+};
 
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+export const clearToken = () => {
+  localStorage.removeItem(TOKEN_KEY);
+};
 
+/**
+ * Ajout automatique du token JWT
+ * dans les requêtes vers le backend.
+ */
 axios.interceptors.request.use((config) => {
   const token = getToken();
 
@@ -22,26 +35,100 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-export const login = async (identifier, password) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-    identifier,
-    password,
-  });
+/**
+ * Gestion automatique des sessions expirées.
+ *
+ * Si une API protégée répond avec une erreur 401 :
+ * - le token est supprimé ;
+ * - une notification est envoyée au frontend ;
+ * - l'utilisateur est redirigé vers la connexion.
+ */
+axios.interceptors.response.use(
+  (response) => response,
+
+  (error) => {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+
+    // Les erreurs du login et de l'inscription
+    // doivent rester affichées dans leurs formulaires.
+    const isAuthRequest =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/register');
+
+    if (
+      status === 401 &&
+      !isAuthRequest &&
+      getToken()
+    ) {
+      // Suppression du token expiré.
+      clearToken();
+
+      // Notification globale affichée par App.jsx.
+      window.dispatchEvent(
+        new CustomEvent('regimenu:toast', {
+          detail: {
+            type: 'info',
+            message:
+              'Votre session a expiré. Veuillez vous reconnecter.',
+          },
+        }),
+      );
+
+      // Retour vers la page de connexion.
+      window.location.href = '/login';
+    }
+
+    // L'erreur reste disponible pour le composant appelant.
+    return Promise.reject(error);
+  },
+);
+
+/**
+ * =========================================================
+ * AUTHENTIFICATION
+ * =========================================================
+ */
+
+export const login = async (
+  identifier,
+  password,
+) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/auth/login`,
+    {
+      identifier,
+      password,
+    },
+  );
+
   saveToken(response.data.token);
+
   return response.data;
 };
 
-export const register = async (username, email, password) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/register`, {
-    username,
-    email,
-    password,
-  });
+export const register = async (
+  username,
+  email,
+  password,
+) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/auth/register`,
+    {
+      username,
+      email,
+      password,
+    },
+  );
+
   saveToken(response.data.token);
+
   return response.data;
 };
 
-export const logout = () => clearToken();
+export const logout = () => {
+  clearToken();
+};
 
 /**
  * =========================================================
@@ -55,16 +142,14 @@ export const logout = () => clearToken();
 export const getTodayMeals = async () => {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/meals/today`
+      `${API_BASE_URL}/meals/today`,
     );
 
     return response.data.meals;
-
   } catch (error) {
-
     console.warn(
-      '⚠️ getTodayMeals: bascule sur getRandomMeals en secours',
-      error
+      'getTodayMeals : bascule sur getRandomMeals en secours',
+      error,
     );
 
     return getRandomMeals();
@@ -76,7 +161,7 @@ export const getTodayMeals = async () => {
  */
 export const regenerateMeals = async () => {
   const response = await axios.post(
-    `${API_BASE_URL}/meals/regenerate`
+    `${API_BASE_URL}/meals/regenerate`,
   );
 
   return response.data.meals;
@@ -92,23 +177,19 @@ export const regenerateMeals = async () => {
  * Récupère des recettes aléatoires.
  */
 export const getRandomMeals = async () => {
-
   try {
-
     const response = await axios.get(
-      `${API_BASE_URL}/meals/random`
+      `${API_BASE_URL}/meals/random`,
     );
 
     return response.data.meals;
-
   } catch (error) {
-
     console.warn(
-      '⚠️ Mode secours (Mock) activé pour l’accueil.'
+      'Mode secours Mock activé pour l’accueil.',
+      error,
     );
 
     return [
-
       {
         id: 633166,
         title:
@@ -117,7 +198,7 @@ export const getRandomMeals = async () => {
           'https://img.spoonacular.com/recipes/633166-556x370.jpg',
         readyInMinutes: 45,
         isVegetarian: false,
-        isVegan: false
+        isVegan: false,
       },
 
       {
@@ -127,7 +208,7 @@ export const getRandomMeals = async () => {
           'https://img.spoonacular.com/recipes/655103-556x370.png',
         readyInMinutes: 45,
         isVegetarian: true,
-        isVegan: false
+        isVegan: false,
       },
 
       {
@@ -138,9 +219,8 @@ export const getRandomMeals = async () => {
           'https://img.spoonacular.com/recipes/716426-556x370.jpg',
         readyInMinutes: 30,
         isVegetarian: true,
-        isVegan: true
-      }
-
+        isVegan: true,
+      },
     ];
   }
 };
@@ -149,164 +229,135 @@ export const getRandomMeals = async () => {
  * Récupère les détails d'une recette.
  */
 export const getRecipeDetails = async (id) => {
-
   try {
-
     const response = await axios.get(
-      `${API_BASE_URL}/meals/${id}`
+      `${API_BASE_URL}/meals/${id}`,
     );
 
     return response.data;
-
   } catch (error) {
-
     console.warn(
-      `⚠️ Mode secours (Mock) activé pour les détails de l’ID ${id}`
+      `Mode secours Mock activé pour la recette ${id}.`,
+      error,
     );
 
     const mockRecipes = {
-
       633166: {
-
         id: 633166,
-
         title:
           'Soupe à l’avocat, au maïs, à la tomate et aux tortillas',
-
         imageUrl:
           'https://img.spoonacular.com/recipes/633166-556x370.jpg',
-
         readyInMinutes: 45,
-
         servings: 4,
-
         isVegetarian: false,
-
         isVegan: false,
-
         extendedIngredients: [
           {
             id: 1,
-            original: '2 avocats mûrs, coupés en dés'
+            original: '2 avocats mûrs, coupés en dés',
           },
           {
             id: 2,
-            original: '200g de maïs doux'
+            original: '200g de maïs doux',
           },
           {
             id: 3,
-            original: '3 tomates fraîches coupées en dés'
+            original:
+              '3 tomates fraîches coupées en dés',
           },
           {
             id: 4,
-            original: '1 litre de bouillon de légumes'
+            original:
+              '1 litre de bouillon de légumes',
           },
           {
             id: 5,
             original:
-              'Chips de tortilla croustillantes'
-          }
+              'Chips de tortilla croustillantes',
+          },
         ],
-
         instructions:
           '1. Dans une grande casserole, porter le bouillon de légumes à ébullition.\n' +
           '2. Ajouter les tomates et le maïs, puis laisser mijoter 15 minutes.\n' +
           '3. Incorporer délicatement les dés d’avocat juste avant de servir.\n' +
-          '4. Servir chaud dans des bols avec des chips de tortilla.'
+          '4. Servir chaud dans des bols avec des chips de tortilla.',
       },
 
       655103: {
-
         id: 655103,
-
         title: 'Crostata aux pêches',
-
         imageUrl:
           'https://img.spoonacular.com/recipes/655103-556x370.png',
-
         readyInMinutes: 45,
-
         servings: 6,
-
         isVegetarian: true,
-
         isVegan: false,
-
         extendedIngredients: [
           {
             id: 1,
-            original: '1 pâte brisée sablée'
+            original: '1 pâte brisée sablée',
           },
           {
             id: 2,
             original:
-              '4 pêches mûres tranchées'
+              '4 pêches mûres tranchées',
           },
           {
             id: 3,
             original:
-              '50g de sucre de canne'
+              '50g de sucre de canne',
           },
           {
             id: 4,
             original:
-              '1 cuillère à soupe de jus de citron'
-          }
+              '1 cuillère à soupe de jus de citron',
+          },
         ],
-
         instructions:
           '1. Préchauffer le four à 180°C.\n' +
           '2. Étaler la pâte sur une plaque de cuisson.\n' +
           '3. Disposer les tranches de pêches au centre en laissant les bords libres.\n' +
-          '4. Saupoudrer de sucre, replier les bords et enfourner 35 minutes.'
+          '4. Saupoudrer de sucre, replier les bords et enfourner 35 minutes.',
       },
 
       716426: {
-
         id: 716426,
-
         title:
           'Riz sauté au chou-fleur, au riz complet et aux légumes',
-
         imageUrl:
           'https://img.spoonacular.com/recipes/716426-556x370.jpg',
-
         readyInMinutes: 30,
-
         servings: 4,
-
         isVegetarian: true,
-
         isVegan: true,
-
         extendedIngredients: [
           {
             id: 1,
             original:
-              '2 tasses de riz complet cuit'
+              '2 tasses de riz complet cuit',
           },
           {
             id: 2,
             original:
-              '1 tête de chou-fleur râpée'
+              '1 tête de chou-fleur râpée',
           },
           {
             id: 3,
             original:
-              '1 tasse de petits pois et carottes'
+              '1 tasse de petits pois et carottes',
           },
           {
             id: 4,
             original:
-              '2 cuillères à soupe de sauce soja'
-          }
+              '2 cuillères à soupe de sauce soja',
+          },
         ],
-
         instructions:
           '1. Faire sauter le chou-fleur et les légumes dans une poêle chaude avec un filet d’huile.\n' +
           '2. Ajouter le riz complet cuit.\n' +
-          '3. Verser la sauce soja, bien mélanger et servir chaud.'
-      }
+          '3. Verser la sauce soja, bien mélanger et servir chaud.',
+      },
     };
 
     return (
@@ -319,9 +370,7 @@ export const getRecipeDetails = async (id) => {
 /**
  * Alias conservé pour compatibilité.
  */
-export const getMealDetails =
-  getRecipeDetails;
-
+export const getMealDetails = getRecipeDetails;
 
 /**
  * =========================================================
@@ -330,42 +379,29 @@ export const getMealDetails =
  */
 
 /**
- * =========================================================
- * US4.2
- * =========================================================
+ * Récupère le profil de l'utilisateur connecté.
  */
+export const getUserProfile = async () => {
+  const response = await axios.get(
+    `${API_BASE_URL}/profile`,
+  );
+
+  return response.data;
+};
 
 /**
- * GET /api/profile
- *
- * Récupère le profil courant.
+ * Met à jour les préférences alimentaires.
  */
-export const getUserProfile =
-  async () => {
+export const updateUserProfile = async (
+  preferences,
+) => {
+  const response = await axios.put(
+    `${API_BASE_URL}/profile`,
+    preferences,
+  );
 
-    const response = await axios.get(
-      `${API_BASE_URL}/profile`
-    );
-
-    return response.data;
-  };
-
-
-/**
- * PUT /api/profile
- *
- * Enregistre les préférences alimentaires.
- */
-export const updateUserProfile =
-  async (preferences) => {
-
-    const response = await axios.put(
-      `${API_BASE_URL}/profile`,
-      preferences
-    );
-
-    return response.data;
-  };
+  return response.data;
+};
 
 /**
  * =========================================================
@@ -374,20 +410,30 @@ export const updateUserProfile =
  */
 
 export const getAdminUsers = async () => {
-  const response = await axios.get(`${API_BASE_URL}/admin/users`);
+  const response = await axios.get(
+    `${API_BASE_URL}/admin/users`,
+  );
+
   return response.data;
 };
 
-export const suspendAdminUser = async (userId) => {
+export const suspendAdminUser = async (
+  userId,
+) => {
   const response = await axios.put(
     `${API_BASE_URL}/admin/users/${userId}/suspend`,
-    null
+    null,
   );
+
   return response.data;
 };
 
-export const deleteAdminUser = async (userId) => {
-  await axios.delete(`${API_BASE_URL}/admin/users/${userId}`);
+export const deleteAdminUser = async (
+  userId,
+) => {
+  await axios.delete(
+    `${API_BASE_URL}/admin/users/${userId}`,
+  );
 };
 
 /**
@@ -397,7 +443,10 @@ export const deleteAdminUser = async (userId) => {
  */
 
 export const getFavorites = async () => {
-  const response = await axios.get(`${API_BASE_URL}/favorites`);
+  const response = await axios.get(
+    `${API_BASE_URL}/favorites`,
+  );
+
   return response.data.map((favorite) => ({
     id: favorite.recipeId,
     title: favorite.title,
@@ -406,12 +455,19 @@ export const getFavorites = async () => {
 };
 
 export const addFavorite = async (meal) => {
-  await axios.post(`${API_BASE_URL}/favorites/${meal.id}`, {
-    title: meal.title,
-    image: meal.imageUrl || meal.image || '',
-  });
+  await axios.post(
+    `${API_BASE_URL}/favorites/${meal.id}`,
+    {
+      title: meal.title,
+      image: meal.imageUrl || meal.image || '',
+    },
+  );
 };
 
-export const removeFavorite = async (recipeId) => {
-  await axios.delete(`${API_BASE_URL}/favorites/${recipeId}`);
+export const removeFavorite = async (
+  recipeId,
+) => {
+  await axios.delete(
+    `${API_BASE_URL}/favorites/${recipeId}`,
+  );
 };

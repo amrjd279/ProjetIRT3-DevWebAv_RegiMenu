@@ -38,3 +38,9 @@ Thumbs.db
 *.env
 src/main/resources/application-local.yml
 src/main/resources/application-local.properties
+
+### Logs ###
+logs/
+*.log
+*.out
+*.err
