@@ -18,6 +18,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -147,6 +148,25 @@ class SecurityIntegrationTest {
         // Étape 3 : Appeler une route réservée aux admins
         mockMvc.perform(get("/api/admin/users")
                 .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldAllowCorsForLocalhostAndRenderOriginsAndRejectUnauthorizedOrigin() throws Exception {
+        when(menuService.getTodayMenu(null)).thenReturn(new MealsResponseDto(List.of()));
+
+        // Origine localhost (Vite) autorisée
+        mockMvc.perform(get("/api/meals/today").header("Origin", "http://localhost:5173"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
+
+        // Origine Render (production et PR previews) autorisée
+        mockMvc.perform(get("/api/meals/today").header("Origin", "https://projetirt3-frontend.onrender.com"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "https://projetirt3-frontend.onrender.com"));
+
+        // Origine tierce non autorisée : rejetée immédiatement en 403 Forbidden par le CorsFilter
+        mockMvc.perform(get("/api/meals/today").header("Origin", "https://unauthorized-domain.com"))
                 .andExpect(status().isForbidden());
     }
 }
