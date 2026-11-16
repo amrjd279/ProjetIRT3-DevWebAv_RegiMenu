@@ -13,7 +13,6 @@ spring:
     init:
       mode: always
       schema-locations: classpath:schema.sql
-      continue-on-error: true
   h2:
     console:
       enabled: true
@@ -27,3 +26,6 @@ spoonacular:
 jwt:
   secret: ${JWT_SECRET:RegiMenuSuperSecretKeyForJwtSignatureMustBeAtLeast256BitsLong2026!}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+cors:
+  allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,https://*.onrender.com}
