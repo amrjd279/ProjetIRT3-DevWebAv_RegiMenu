@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getTodayMeals,
-  getRandomMeals,
   regenerateMeals,
   getUserProfile
 } from '../services/api';
@@ -9,6 +9,7 @@ import MealCard from '../components/MealCard';
 import './Home.css';
 
 export default function Home() {
+  const navigate = useNavigate();
   const [meals, setMeals] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,8 +26,7 @@ export default function Home() {
           console.warn("Profil non récupéré (mode visiteur anonyme)", err);
         }
 
-        const userId = currentProfile ? currentProfile.id : null;
-        const data = await getTodayMeals(userId);
+        const data = await getTodayMeals();
         setMeals(data);
       } catch (err) {
         console.error("Erreur chargement menu du jour", err);
@@ -41,11 +41,17 @@ export default function Home() {
   const handleRegenerate = async () => {
     setRefreshing(true);
     try {
-      const newMeals = profile
-        ? await regenerateMeals(profile.id)
-        : await getRandomMeals();
+      const newMeals = await regenerateMeals();
       setMeals(newMeals);
     } catch (error) {
+      if (error.response?.status === 401) {
+        window.alert(
+          'Vous devez être connecté pour régénérer votre menu.'
+        );
+        navigate('/login');
+        return;
+      }
+
       console.error("Erreur lors de la régénération du menu", error);
     } finally {
       setRefreshing(false);
