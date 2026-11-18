@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   getTodayMeals,
   regenerateMeals,
-  getUserProfile
+  validateTodayMeals,
+  getUserProfile,
+  getToken,
 } from '../services/api';
 import MealCard from '../components/MealCard';
 import './Home.css';
@@ -11,9 +13,12 @@ import './Home.css';
 export default function Home() {
   const navigate = useNavigate();
   const [meals, setMeals] = useState([]);
+  const [isValidated, setIsValidated] = useState(false);
+  const [validatedAt, setValidatedAt] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [validating, setValidating] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -26,8 +31,10 @@ export default function Home() {
           console.warn("Profil non récupéré (mode visiteur anonyme)", err);
         }
 
-        const data = await getTodayMeals();
-        setMeals(data);
+        const menuData = await getTodayMeals();
+        setMeals(menuData.meals || []);
+        setIsValidated(Boolean(menuData.validated));
+        setValidatedAt(menuData.validatedAt || null);
       } catch (err) {
         console.error("Erreur chargement menu du jour", err);
       } finally {
@@ -39,11 +46,24 @@ export default function Home() {
   }, []);
 
   const handleRegenerate = async () => {
+    if (isValidated) {
+      window.alert("Ce menu a déjà été validé pour aujourd'hui et ne peut plus être modifié.");
+      return;
+    }
+
     setRefreshing(true);
     try {
-      const newMeals = await regenerateMeals();
-      setMeals(newMeals);
+      const result = await regenerateMeals();
+      setMeals(result.meals || []);
+      setIsValidated(Boolean(result.validated));
+      setValidatedAt(result.validatedAt || null);
     } catch (error) {
+      if (error.response?.status === 409) {
+        window.alert("Le menu du jour a déjà été validé et ne peut plus être régénéré.");
+        setIsValidated(true);
+        return;
+      }
+
       if (error.response?.status === 401) {
         window.alert(
           'Vous devez être connecté pour régénérer votre menu.'
@@ -55,6 +75,51 @@ export default function Home() {
       console.error("Erreur lors de la régénération du menu", error);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const handleValidate = async () => {
+    if (!profile && !getToken()) {
+      window.alert('Vous devez être connecté pour valider votre menu du jour.');
+      navigate('/login');
+      return;
+    }
+
+    if (isValidated) {
+      return;
+    }
+
+    setValidating(true);
+    try {
+      const result = await validateTodayMeals();
+      setMeals(result.meals || []);
+      setIsValidated(true);
+      setValidatedAt(result.validatedAt || null);
+
+      window.dispatchEvent(
+        new CustomEvent('regimenu:toast', {
+          detail: {
+            type: 'success',
+            message: 'Votre menu du jour a été validé avec succès !',
+          },
+        }),
+      );
+    } catch (error) {
+      if (error.response?.status === 409) {
+        window.alert("Le menu du jour a déjà été validé.");
+        setIsValidated(true);
+        return;
+      }
+
+      if (error.response?.status === 401) {
+        window.alert('Vous devez être connecté pour valider votre menu.');
+        navigate('/login');
+        return;
+      }
+
+      console.error("Erreur lors de la validation du menu", error);
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -107,22 +172,57 @@ export default function Home() {
           </div>
         )}
 
-        <div className="header-actions">
-          <button 
-            className="regenerate-btn" 
-            onClick={handleRegenerate} 
-            disabled={refreshing}
-          >
-            {refreshing ? (
-              <>
-                <span className="btn-spinner"></span>
-                Génération en cours...
-              </>
-            ) : (
-              "🎲 Proposer d'autres repas"
-            )}
-          </button>
-        </div>
+        {isValidated && (
+          <div className="validation-status-banner">
+            <span className="validation-badge">✓ Menu validé pour aujourd'hui</span>
+            <p className="validation-info">
+              Ce menu a été validé{validatedAt ? ` à ${new Date(validatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}.
+              Il est verrouillé et ne peut plus être modifié.
+            </p>
+          </div>
+        )}
+
+        {!isValidated ? (
+          <div className="header-actions">
+            <button 
+              className="validate-btn"
+              onClick={handleValidate}
+              disabled={validating}
+              title="Entériner votre choix du jour"
+            >
+              {validating ? (
+                <>
+                  <span className="btn-spinner"></span>
+                  Validation en cours...
+                </>
+              ) : (
+                "Valider mon menu du jour"
+              )}
+            </button>
+
+            <button 
+              className="regenerate-btn" 
+              onClick={handleRegenerate} 
+              disabled={refreshing}
+              title="Générer d'autres suggestions"
+            >
+              {refreshing ? (
+                <>
+                  <span className="btn-spinner"></span>
+                  Génération en cours...
+                </>
+              ) : (
+                "Proposer d'autres repas"
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="header-actions">
+            <Link to="/historique" className="history-shortcut-btn">
+              Consulter l'historique des repas
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="meals-grid">

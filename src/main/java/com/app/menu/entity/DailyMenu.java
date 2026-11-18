@@ -15,6 +15,8 @@ public class DailyMenu {
     private Long userProfileId;
     private LocalDate menuDate;
     private LocalDateTime generatedAt;
+    private boolean isValidated = false;
+    private LocalDateTime validatedAt;
     private List<DailyMeal> meals = new ArrayList<>();
 
     public DailyMenu() {
@@ -28,11 +30,33 @@ public class DailyMenu {
     }
 
     public DailyMenu(Long id, Long userProfileId, LocalDate menuDate, LocalDateTime generatedAt, List<DailyMeal> meals) {
+        this(id, userProfileId, menuDate, generatedAt, false, null, meals);
+    }
+
+    public DailyMenu(Long id, Long userProfileId, LocalDate menuDate, LocalDateTime generatedAt, boolean isValidated, LocalDateTime validatedAt, List<DailyMeal> meals) {
         this.id = id;
         this.userProfileId = userProfileId;
         this.menuDate = menuDate;
         this.generatedAt = generatedAt;
+        this.isValidated = isValidated;
+        this.validatedAt = validatedAt;
         this.meals = (meals != null) ? meals : new ArrayList<>();
+    }
+
+    public boolean isValidated() {
+        return isValidated;
+    }
+
+    public void setValidated(boolean validated) {
+        isValidated = validated;
+    }
+
+    public LocalDateTime getValidatedAt() {
+        return validatedAt;
+    }
+
+    public void setValidatedAt(LocalDateTime validatedAt) {
+        this.validatedAt = validatedAt;
     }
 
     public Long getId() {

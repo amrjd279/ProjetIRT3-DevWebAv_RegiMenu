@@ -149,7 +149,7 @@ export const logout = () => {
  */
 
 /**
- * Récupère le menu du jour.
+ * Récupère le menu du jour et son état de validation.
  */
 export const getTodayMeals = async () => {
   try {
@@ -157,26 +157,54 @@ export const getTodayMeals = async () => {
       `${API_BASE_URL}/meals/today`,
     );
 
-    return response.data.meals;
+    return {
+      meals: response.data.meals || [],
+      validated: Boolean(response.data.validated),
+      validatedAt: response.data.validatedAt || null,
+    };
   } catch (error) {
     console.warn(
       'getTodayMeals : bascule sur getRandomMeals en secours',
       error,
     );
 
-    return getRandomMeals();
+    const fallbackMeals = await getRandomMeals();
+    return {
+      meals: fallbackMeals,
+      validated: false,
+      validatedAt: null,
+    };
   }
 };
 
 /**
- * Régénère les repas du jour.
+ * Régénère les repas du jour (uniquement si non validé).
  */
 export const regenerateMeals = async () => {
   const response = await axios.post(
     `${API_BASE_URL}/meals/regenerate`,
   );
 
-  return response.data.meals;
+  return {
+    meals: response.data.meals || [],
+    validated: Boolean(response.data.validated),
+    validatedAt: response.data.validatedAt || null,
+  };
+};
+
+/**
+ * Valide et verrouille le menu du jour pour l'utilisateur connecté (US 13 / v1.0).
+ */
+export const validateTodayMeals = async () => {
+  const response = await axios.post(
+    `${API_BASE_URL}/meals/today/validate`,
+  );
+
+  return {
+    meals: response.data.meals || [],
+    validated: Boolean(response.data.validated),
+    validatedAt: response.data.validatedAt || null,
+  };
 };
 
 /**

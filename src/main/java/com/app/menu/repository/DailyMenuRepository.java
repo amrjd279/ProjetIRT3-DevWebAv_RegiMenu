@@ -16,4 +16,6 @@ public interface DailyMenuRepository {
     Optional<DailyMenu> findTopByMenuDateAndUserProfileIdIsNullOrderByGeneratedAtDesc(LocalDate menuDate);
 
     DailyMenu save(DailyMenu dailyMenu);
+
+    void updateValidationStatus(Long menuId, boolean isValidated, java.time.LocalDateTime validatedAt);
 }

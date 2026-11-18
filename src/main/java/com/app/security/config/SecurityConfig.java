@@ -104,7 +104,7 @@ public class SecurityConfig {
                 // Administration (ROLE_ADMIN requis)
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Endpoints authentifiés
-                .requestMatchers(HttpMethod.POST, "/api/meals/regenerate").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/meals/regenerate", "/api/meals/today/validate").authenticated()
                 .requestMatchers("/api/profile/**", "/api/favorites/**", "/api/auth/me").authenticated()
                 .anyRequest().authenticated()
             )

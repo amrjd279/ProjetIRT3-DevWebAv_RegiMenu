@@ -3,11 +3,13 @@ package com.app.menu.service;
 import com.app.menu.RecipeGateway;
 import com.app.menu.entity.DailyMeal;
 import com.app.menu.entity.DailyMenu;
+import com.app.menu.exception.MenuAlreadyValidatedException;
 import com.app.menu.model.MealDetailDto;
 import com.app.menu.model.MealDto;
 import com.app.menu.model.MealsResponseDto;
 import com.app.menu.repository.DailyMenuRepository;
 import com.app.profile.entity.DietaryPreferences;
+import com.app.profile.entity.UserProfile;
 import com.app.profile.service.ProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,11 +57,13 @@ public class MenuService {
                 : dailyMenuRepository.findTopByMenuDateAndUserProfileIdIsNullOrderByGeneratedAtDesc(today);
 
         if (existingMenu.isPresent()) {
+            DailyMenu menu = existingMenu.get();
             log.info("Menu du jour ({}) déjà existant en BDD pour userId={} (0 appel Spoonacular)", today, userProfileId);
-            List<MealDto> cachedMeals = existingMenu.get().getMeals().stream()
+            List<MealDto> cachedMeals = menu.getMeals().stream()
                     .map(this::toMealDto)
                     .toList();
-            return new MealsResponseDto(cachedMeals);
+            String validatedAtStr = (menu.getValidatedAt() != null) ? menu.getValidatedAt().toString() : null;
+            return new MealsResponseDto(cachedMeals, menu.isValidated(), validatedAtStr);
         }
 
         log.info("Aucun menu du jour trouvé pour userId={}, première génération...", userProfileId);
@@ -71,7 +76,13 @@ public class MenuService {
     public MealsResponseDto regenerateTodayMenu(Long userProfileId) {
         List<String> tags = Collections.emptyList();
 
+
         if (userProfileId != null) {
+            Optional<DailyMenu> existingMenu = dailyMenuRepository.findTopByMenuDateAndUserProfileIdOrderByGeneratedAtDesc(LocalDate.now(), userProfileId);
+            if (existingMenu.isPresent() && existingMenu.get().isValidated()) {
+                log.info("Le menu du jour pour userId={} est déjà validé, régénération interdite.", userProfileId);
+                throw new MenuAlreadyValidatedException("Le menu du jour est déjà validé et ne peut pas être régénéré.");
+            }
             DietaryPreferences prefs = profileService.getPreferences(userProfileId);
             tags = prefs.toSpoonacularTags();
             log.info("Régénération du menu pour userId={} avec les préférences : {}", userProfileId, tags);
@@ -95,6 +106,56 @@ public class MenuService {
 
         log.info("Nouveau menu du jour enregistré en base de données avec succès");
         return new MealsResponseDto(generatedMeals);
+    }
+
+    /**
+     * Valide et verrouille le menu du jour pour l'utilisateur connecté (US 13 / Jalon v1.0).
+     *
+     * Objectif métier :
+     * 1. Vérifier que l'utilisateur est bien connecté (userProfileId != null).
+     * 2. Récupérer le menu du jour existant. S'il n'existe pas encore, le générer d'abord.
+     * 3. S'il est déjà validé, retourner directement le DTO avec validated = true.
+     * 4. Sinon, passer son état à validé (isValidated = true, validatedAt = maintenant),
+     *    mettre à jour la base de données via dailyMenuRepository.updateValidationStatus(...),
+     *    et retourner le MealsResponseDto mis à jour.
+     */
+    /**
+     * Valide et verrouille le menu du jour pour l'utilisateur connecté (US 13 / Jalon v1.0).
+     */
+    public MealsResponseDto validateTodayMenu(Long userProfileId) {
+        if (userProfileId == null) {
+            throw new IllegalArgumentException("L'utilisateur doit être connecté pour valider le menu du jour.");
+        }
+
+        DailyMenu menuToValidate;
+        Optional<DailyMenu> existingMenu = dailyMenuRepository.findTopByMenuDateAndUserProfileIdOrderByGeneratedAtDesc(LocalDate.now(), userProfileId);
+
+        if (existingMenu.isEmpty()) {
+            log.info("Aucun menu du jour trouvé pour userId={}, génération avant validation...", userProfileId);
+            regenerateTodayMenu(userProfileId);
+            menuToValidate = dailyMenuRepository.findTopByMenuDateAndUserProfileIdOrderByGeneratedAtDesc(LocalDate.now(), userProfileId)
+                    .orElseThrow(() -> new IllegalStateException("Erreur lors de la récupération du menu généré."));
+        } else {
+            menuToValidate = existingMenu.get();
+        }
+
+        if (menuToValidate.isValidated()) {
+            log.info("Le menu du jour pour userId={} est déjà validé, retour du DTO existant.", userProfileId);
+            String validatedAtStr = (menuToValidate.getValidatedAt() != null) ? menuToValidate.getValidatedAt().toString() : null;
+            return new MealsResponseDto(menuToValidate.getMeals().stream()
+                    .map(this::toMealDto)
+                    .toList(), true, validatedAtStr);
+        }
+
+        log.info("Validation du menu du jour pour userId={}", userProfileId);
+        LocalDateTime now = LocalDateTime.now();
+        menuToValidate.setValidated(true);
+        menuToValidate.setValidatedAt(now);
+        dailyMenuRepository.updateValidationStatus(menuToValidate.getId(), true, now);
+
+        return new MealsResponseDto(menuToValidate.getMeals().stream()
+                .map(this::toMealDto)
+                .toList(), true, now.toString());
     }
 
     /**

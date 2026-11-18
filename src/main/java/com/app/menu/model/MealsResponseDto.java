@@ -6,6 +6,12 @@ import java.util.List;
  * Enveloppe de réponse contenant la liste des plats ("meals": [...]).
  */
 public record MealsResponseDto(
-        List<MealDto> meals
-) {}
+        List<MealDto> meals,
+        boolean validated,
+        String validatedAt
+) {
+    public MealsResponseDto(List<MealDto> meals) {
+        this(meals, false, null);
+    }
+}
 

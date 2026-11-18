@@ -78,7 +78,7 @@ Une release est considérée comme terminée uniquement lorsque :
 
 ---
 
-### v0.1 : MVP - Socle Technique & Découverte des Repas (2 séances de 4h) — *Terminé* ✅
+### v0.1 : MVP - Socle Technique & Découverte des Repas (2 séances de 4h) — [Terminé]
 **Objectif :** Valider la communication frontend React, backend Spring Boot et API externe Spoonacular.
 * **Fonctionnalités livrées :**
   * Initialisation du projet (Spring Boot 3.2+ et React Vite).
@@ -88,51 +88,60 @@ Une release est considérée comme terminée uniquement lorsque :
 
 ---
 
-### v0.2 : Persistance des Menus, Préférences & Module Favoris (3 séances de 4h) — *Quasi terminé* 🔄
+### v0.2 : Persistance des Menus, Préférences & Module Favoris (3 séances de 4h) — [Terminé]
 **Objectif :** Sortir du mode stateless grâce à SQL / `JdbcClient`, stabiliser le menu au rafraîchissement, filtrer par allergies et persister les favoris.
 * **Fonctionnalités livrées :**
-  * **Architecture & BDD ✅ :** Intégration de **Spring Modulith**, migration complète de JPA vers **Spring `JdbcClient`** et création du script `schema.sql` compatible H2 & PostgreSQL.
-  * **Persistance du Menu du Jour (`menu`) ✅ :**
-    * `GET /api/meals/today` : les repas restent identiques au refresh/changement d'onglet sans consommer de crédit API.
+  * **Architecture & BDD :** Intégration de Spring Modulith, migration complète de JPA vers Spring `JdbcClient` et création du script `schema.sql` compatible H2 & PostgreSQL.
+  * **Persistance du Menu du Jour (`menu`) :**
+    * `GET /api/meals/today` : les repas restent identiques au refresh sans consommer de crédit API Spoonacular.
     * `POST /api/meals/regenerate` : recalcul volontaire d'un nouveau menu filtré selon le profil actif.
-  * **Module Profil, Préférences & Allergies (`profile`) ✅ :**
+  * **Module Profil, Préférences & Allergies (`profile`) :**
     * Stockage des régimes alimentaires (végétarien, végan, sans gluten, sans lactose) et des allergies (arachides, lait, gluten, œufs, fruits de mer).
     * Prise en compte de ces filtres et allergies dans les requêtes Spoonacular (`tags`) et affichage visuel des préférences actives sur l'accueil.
-  * **Module Favoris (`favorite`) ✅ :**
+  * **Module Favoris (`favorite`) :**
     * Table `favorite_meals`, endpoints REST (`GET`, `POST`, `DELETE /api/favorites`), implémentation `FavoriteJdbcRepository` avec `JdbcClient` et branchement complet frontend (`MealCard`, `Favoris.jsx`, `RecipeDetail.jsx`).
-* **Reste à finaliser pour clôturer la v0.2 :**
-  * **Environnement PostgreSQL & Déploiement Render ⏳ :** Ajout d'un `docker-compose.yml` PostgreSQL pour validation locale et premier déploiement Render.
+  * **Environnement PostgreSQL & Déploiement Render :**
+    * Conteneurisation locale de PostgreSQL via `docker-compose.yml`.
+    * Déploiement du backend et de la base PostgreSQL sur la plateforme Render.
 
 ---
 
-### v0.3 : Sécurisation Spring Security & Administration (3 séances de 4h) — *Prochaine étape* 🚀
-**Objectif :** Brancher **Spring Security**, gérer l'authentification et les rôles, restreindre les droits et doter l'administrateur d'un tableau de bord.
-* **Fonctionnalités incluses :**
+### v0.3 : Sécurisation Spring Security & Administration (3 séances de 4h) — [Terminé]
+**Objectif :** Brancher Spring Security, gérer l'authentification et les rôles, restreindre les droits et doter l'administrateur d'un tableau de bord.
+* **Fonctionnalités livrées :**
   * **Authentification Spring Security :**
-    * Intégration de `spring-boot-starter-security` (configuration `SecurityFilterChain`, CORS React, encodage BCrypt des mots de passe, gestion de session ou token JWT).
-    * Colonnes `password_hash` et `role` (`ROLE_USER` / `ROLE_ADMIN`) ajoutées dans `user_profiles`.
-    * Endpoints d'authentification (`POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` / logout).
-    * Sécurisation des routes : `GET /api/meals/today` et `GET /api/meals/{id}` publics pour le visiteur ; `POST /api/meals/regenerate`, `/api/profile/**` et `/api/favorites/**` réservés aux utilisateurs connectés ; `/api/admin/**` réservé à `ROLE_ADMIN`.
-    * Isolation des données par utilisateur connecté (`@AuthenticationPrincipal`) pour les menus, les préférences et les favoris (`user_profile_id` sur `favorite_meals`).
-    * Frontend : pages/modales de Connexion & Inscription, état connecté dans la Navbar, blocage du bouton "Régénérer" pour les visiteurs anonymes.
+    * Intégration de `spring-boot-starter-security` en mode Stateless avec JWT et hachage BCrypt.
+    * Modèle utilisateur étendu avec `password_hash`, `role` (`ROLE_USER` / `ROLE_ADMIN`) et `status` (`ACTIVE` / `SUSPENDED`).
+    * Endpoints d'authentification (`POST /api/auth/register`, `POST /api/auth/login`).
+    * Sécurisation des routes : catalogue public pour les visiteurs, routes protégées pour les utilisateurs connectés, et routes d'administration réservées au rôle `ROLE_ADMIN`.
+    * Configuration CORS sécurisée et pérenne (support de localhost, Render et Vercel).
+    * Frontend : formulaires Connexion / Inscription, gestion du token Bearer et déconnexion.
   * **Module Administration (`admin`) :**
-    * Endpoint `GET /api/admin/users` : liste des utilisateurs et audit du nombre de requêtes API consommées (`requestCount`) ✅
-    * Gestion des comptes : suspension ou suppression d'un utilisateur abusif ✅
-    * Dashboard frontend `/admin` dédié au profil Administrateur ✅
+    * Endpoint `GET /api/admin/users` : consultation des utilisateurs et de leur statut.
+    * Modération : suspension (`PUT /api/admin/users/{id}/suspend`) et suppression (`DELETE /api/admin/users/{id}`).
+    * Tableau de bord frontend `/admin` dédié aux administrateurs.
   * **Tests de Sécurité & Modularité :**
-    * Tests Spring Security (`@WithMockUser` / `MockMvc`) vérifiant les accès 401/403 et tests Spring Modulith mis à jour.
+    * Tests d'architecture logicielle Spring Modulith validant l'absence de cycles, l'encapsulation et l'indépendance de `security`.
+    * Tests d'intégration Spring Security (MockMvc) vérifiant les codes 401/403, les accès selon les rôles et le blocage des comptes suspendus.
 
 ---
 
-### v1.0 : Historique, Validation Finale & Production (2 séances de 4h)
-**Objectif :** Finaliser le cycle de vie du menu et déployer la version finale de production.
-* **Fonctionnalités incluses :**
-  * **Validation du Menu du Jour :**
-    * Action `POST /api/meals/today/validate` permettant à l'utilisateur d'entériner son choix du jour (verrouillage de la suggestion).
-  * **Page Historique des Menus :**
-    * Endpoint `GET /api/meals/history` renvoyant les menus validés des jours antérieurs.
-    * Interface frontend `Historique.jsx` avec consultation par date.
-  * **Qualité & CI/CD :**
-    * Suite de tests complète avec PostgreSQL (TestContainers ou CI).
-    * Pipeline GitHub Actions automatisé et PR Previews sur Render.
-    * Documentation finale (README complet, diagrammes C4 générés par Spring Modulith).
+### v1.0 : Historique, Validation Finale & Production (2 séances de 4h) — [En cours]
+**Objectif :** Finaliser le cycle de vie du menu, consulter l'historique et préparer la livraison finale.
+* **Fonctionnalités livrées :**
+  * **Cycle de Vie & Validation du Menu du Jour (Backend) :**
+    * Extension de la table `daily_menus` avec les colonnes `is_validated` et `validated_at`.
+    * Règle métier de verrouillage : interdiction stricte de régénérer un menu validé via l'exception métier `MenuAlreadyValidatedException` (HTTP 409 Conflict).
+    * Endpoint `POST /api/meals/today/validate` permettant d'entériner le choix du jour.
+    * Suite de tests unitaires `MenuServiceTest` validant l'ensemble des règles de gestion de la validation.
+* **Reste à finaliser pour la clôture v1.0 :**
+  * **Intégration Frontend du Menu Validé :**
+    * Bouton "Valider mon menu" sur la page d'accueil (`Home.jsx`).
+    * Verrouillage visuel (désactivation du bouton "Régénérer" et badge "Menu validé").
+  * **Module Historique des Menus :**
+    * Endpoint backend `GET /api/meals/history` pour l'utilisateur connecté.
+    * Interface frontend `Historique.jsx` avec affichage des menus passés par date.
+  * **Finalisation & Qualité :**
+    * Audit et correction du compteur de requêtes API Spoonacular (`requestCount`).
+    * Restriction d'accès à l'onglet Administration aux seuls détenteurs du rôle `ROLE_ADMIN` côté navigation.
+    * Documentation finale (README technique et diagrammes C4 exportés).

@@ -29,7 +29,7 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
     @Override
     public Optional<DailyMenu> findTopByMenuDateAndUserProfileIdOrderByGeneratedAtDesc(LocalDate menuDate, Long userProfileId) {
         String sql = """
-            SELECT id, user_profile_id, menu_date, generated_at
+            SELECT id, user_profile_id, menu_date, generated_at, is_validated, validated_at
             FROM daily_menus
             WHERE menu_date = :menuDate AND user_profile_id = :userProfileId
             ORDER BY generated_at DESC
@@ -44,6 +44,8 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
                         rs.getObject("user_profile_id", Long.class),
                         rs.getDate("menu_date").toLocalDate(),
                         rs.getTimestamp("generated_at").toLocalDateTime(),
+                        rs.getBoolean("is_validated"),
+                        rs.getTimestamp("validated_at") != null ? rs.getTimestamp("validated_at").toLocalDateTime() : null,
                         null
                 ))
                 .optional();
@@ -55,7 +57,7 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
     @Override
     public Optional<DailyMenu> findTopByMenuDateAndUserProfileIdIsNullOrderByGeneratedAtDesc(LocalDate menuDate) {
         String sql = """
-            SELECT id, user_profile_id, menu_date, generated_at
+            SELECT id, user_profile_id, menu_date, generated_at, is_validated, validated_at
             FROM daily_menus
             WHERE menu_date = :menuDate AND user_profile_id IS NULL
             ORDER BY generated_at DESC
@@ -69,6 +71,8 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
                         null,
                         rs.getDate("menu_date").toLocalDate(),
                         rs.getTimestamp("generated_at").toLocalDateTime(),
+                        rs.getBoolean("is_validated"),
+                        rs.getTimestamp("validated_at") != null ? rs.getTimestamp("validated_at").toLocalDateTime() : null,
                         null
                 ))
                 .optional();
@@ -83,8 +87,8 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String insertMenuSql = """
-            INSERT INTO daily_menus (user_profile_id, menu_date, generated_at)
-            VALUES (:userProfileId, :menuDate, :generatedAt)
+            INSERT INTO daily_menus (user_profile_id, menu_date, generated_at, is_validated, validated_at)
+            VALUES (:userProfileId, :menuDate, :generatedAt, :isValidated, :validatedAt)
             """;
 
         LocalDateTime generatedAt = dailyMenu.getGeneratedAt() != null ? dailyMenu.getGeneratedAt() : LocalDateTime.now();
@@ -94,6 +98,8 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
                 .param("userProfileId", dailyMenu.getUserProfileId())
                 .param("menuDate", dailyMenu.getMenuDate())
                 .param("generatedAt", generatedAt)
+                .param("isValidated", dailyMenu.isValidated())
+                .param("validatedAt", dailyMenu.getValidatedAt())
                 .update(keyHolder, "id");
 
         Number key = keyHolder.getKey();
@@ -154,6 +160,22 @@ public class DailyMenuJdbcRepository implements DailyMenuRepository {
                 .list();
 
         menu.setMeals(meals);
+    }
+
+    @Override
+    @Transactional
+    public void updateValidationStatus(Long menuId, boolean isValidated, LocalDateTime validatedAt) {
+        String sql = """
+            UPDATE daily_menus
+            SET is_validated = :isValidated, validated_at = :validatedAt
+            WHERE id = :menuId
+            """;
+
+        jdbcClient.sql(sql)
+                .param("isValidated", isValidated)
+                .param("validatedAt", validatedAt)
+                .param("menuId", menuId)
+                .update();
     }
 }
 
