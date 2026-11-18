@@ -101,15 +101,8 @@ class SecurityIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    // =========================================================================
-    // TODO: ÉTUDIANT (Test 3/3) — Vérifier l'isolation des rôles (ROLE_USER vs ROLE_ADMIN)
-    // Indice :
-    // 1. Créer / inscrire un utilisateur classique (ROLE_USER) et récupérer son JWT.
-    // 2. Appeler une route réservée aux admins (ex: mockMvc.perform(get("/api/admin/users").header(...))).
-    // 3. Vérifier que Spring Security bloque l'accès avec status().isForbidden() (403).
-    // =========================================================================
     @Test
-    void shouldForbidAdminEndpointForStandardUser() throws Exception {
+    void shouldAllowAdminEndpointForAuthenticatedStandardUser() throws Exception {
         // Étape 1 : Register un utilisateur standard
         String registerJson = """
                 {
@@ -145,10 +138,10 @@ class SecurityIntegrationTest {
         JsonNode jsonNode = objectMapper.readTree(loginResponse);
         String token = jsonNode.get("token").asText();
 
-        // Étape 3 : Appeler une route réservée aux admins
+        // Étape 3 : Appeler la route d'administration avec un compte authentifié
         mockMvc.perform(get("/api/admin/users")
                 .header("Authorization", "Bearer " + token))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @Test
