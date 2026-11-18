@@ -6,6 +6,7 @@ import {
 
 import {
   clearToken,
+  getRole,
   getToken,
 } from '../services/api';
 
@@ -17,6 +18,7 @@ export default function Navbar() {
 
   // Vérifie si l'utilisateur possède actuellement un token.
   const isAuthenticated = Boolean(getToken());
+  const isAdmin = getRole() === 'ROLE_ADMIN';
 
   const handleAuthClick = () => {
     // Si l'utilisateur n'est pas connecté,
@@ -104,7 +106,7 @@ export default function Navbar() {
           </Link>
         )}
 
-        {isAuthenticated && (
+        {isAdmin && (
           <Link
             to="/admin"
             className={`nav-item ${
@@ -114,6 +116,7 @@ export default function Navbar() {
             Administration
           </Link>
         )}
+
       </nav>
 
       {/* Bouton connexion / déconnexion */}
