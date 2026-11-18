@@ -173,6 +173,23 @@ public class UserProfileJdbcRepository implements UserProfileRepository {
     }
 
     @Override
+    public void incrementRequestCount(Long id) {
+        incrementRequestCount(id, 1);
+    }
+
+    @Override
+    public void incrementRequestCount(Long id, int amount) {
+        jdbcClient.sql("""
+                UPDATE user_profiles
+                SET request_count = request_count + :amount
+                WHERE id = :id
+                """)
+                .param("id", id)
+                .param("amount", amount)
+                .update();
+    }
+
+    @Override
     public void updateStatus(Long id, AccountStatus status) {
         jdbcClient.sql("UPDATE user_profiles SET status = :status WHERE id = :id")
                 .param("status", status.name())

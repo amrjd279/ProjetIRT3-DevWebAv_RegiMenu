@@ -118,11 +118,13 @@ public class ProfileService {
     }
 
     public void incrementRequestCount(Long id) {
-        profileRepository
-                .findById(id)
-                .ifPresent(
-                        UserProfile::incrementRequestCount
-                );
+        profileRepository.incrementRequestCount(id);
+    }
+
+    public void incrementRequestCount(Long id, int amount) {
+        if (amount > 0) {
+            profileRepository.incrementRequestCount(id, amount);
+        }
     }
 
     private UserProfileDto toDto(

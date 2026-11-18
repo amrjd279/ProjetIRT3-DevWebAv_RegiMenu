@@ -68,10 +68,12 @@ public class MenuController {
      */
     @GetMapping("/random")
     public ResponseEntity<MealsResponseDto> getRandomMeals(
-            @RequestParam(name = "count", defaultValue = "3") int count) {
+            @RequestParam(name = "count", defaultValue = "3") int count,
+            @AuthenticationPrincipal SecurityUser currentUser) {
         log.info("Requête GET /api/meals/random reçue pour count={}", count);
 
-        List<MealDto> meals = menuService.getRandomMenuSuggestions(count);
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
+        List<MealDto> meals = menuService.getRandomMenuSuggestions(count, userId);
         return ResponseEntity.ok(new MealsResponseDto(meals));
     }
 
@@ -80,10 +82,13 @@ public class MenuController {
      * Récupère les détails complets d'une recette pour la page détail (ingrédients, instructions, etc.).
      */
     @GetMapping({ "/{id}", "/{id}/information" })
-    public ResponseEntity<MealDetailDto> getMealDetails(@PathVariable("id") Long id) {
+    public ResponseEntity<MealDetailDto> getMealDetails(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal SecurityUser currentUser) {
         log.info("Requête GET /api/meals/{} reçue pour les détails", id);
 
-        MealDetailDto detail = menuService.getMealDetails(id);
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
+        MealDetailDto detail = menuService.getMealDetails(id, userId);
         return ResponseEntity.ok(detail);
     }
 }

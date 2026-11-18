@@ -74,7 +74,6 @@ public class MenuService {
         if (userProfileId != null) {
             DietaryPreferences prefs = profileService.getPreferences(userProfileId);
             tags = prefs.toSpoonacularTags();
-            profileService.incrementRequestCount(userProfileId);
             log.info("Régénération du menu pour userId={} avec les préférences : {}", userProfileId, tags);
         } else {
             log.info("Régénération d'un menu standard pour visiteur anonyme");
@@ -82,6 +81,9 @@ public class MenuService {
 
         // Appel externe via RecipeGateway
         List<MealDto> generatedMeals = recipeGateway.getRandomRecipes(3, tags);
+        if (userProfileId != null) {
+            profileService.incrementRequestCount(userProfileId, generatedMeals.size());
+        }
 
         // Sauvegarde en base de données pour persistance au refresh
         DailyMenu dailyMenu = new DailyMenu(userProfileId, LocalDate.now());
@@ -98,19 +100,27 @@ public class MenuService {
     /**
      * Méthode générique aléatoire (MVP v0.1).
      */
-    public List<MealDto> getRandomMenuSuggestions(int count) {
+    public List<MealDto> getRandomMenuSuggestions(int count, Long userProfileId) {
         int targetCount = Math.max(1, count);
         log.info("Récupération de {} suggestions de repas pour le menu", targetCount);
-        return recipeGateway.getRandomRecipes(targetCount);
+        List<MealDto> meals = recipeGateway.getRandomRecipes(targetCount);
+        if (userProfileId != null) {
+            profileService.incrementRequestCount(userProfileId, meals.size());
+        }
+        return meals;
     }
 
     /**
      * Récupère les détails complets d'un plat par son identifiant.
      */
     @Transactional(readOnly = true)
-    public MealDetailDto getMealDetails(Long id) {
+    public MealDetailDto getMealDetails(Long id, Long userProfileId) {
         log.info("Récupération des détails pour le plat id={}", id);
-        return recipeGateway.getRecipeDetails(id);
+        MealDetailDto detail = recipeGateway.getRecipeDetails(id);
+        if (userProfileId != null) {
+            profileService.incrementRequestCount(userProfileId, 1);
+        }
+        return detail;
     }
 
     private MealDto toMealDto(DailyMeal entity) {
