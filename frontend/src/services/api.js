@@ -5,6 +5,7 @@ const API_BASE_URL =
   'http://localhost:8081/api';
 
 const TOKEN_KEY = 'regimenu.token';
+const ROLE_KEY = 'regimenu.role';
 
 /**
  * Gestion du token utilisateur.
@@ -17,8 +18,17 @@ export const saveToken = (token) => {
   localStorage.setItem(TOKEN_KEY, token);
 };
 
+export const saveRole = (role) => {
+  localStorage.setItem(ROLE_KEY, role);
+};
+
+export const getRole = () => {
+  return localStorage.getItem(ROLE_KEY);
+};
+
 export const clearToken = () => {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(ROLE_KEY);
 };
 
 /**
@@ -103,6 +113,7 @@ export const login = async (
   );
 
   saveToken(response.data.token);
+  saveRole(response.data.role);
 
   return response.data;
 };
@@ -122,6 +133,7 @@ export const register = async (
   );
 
   saveToken(response.data.token);
+  saveRole(response.data.role);
 
   return response.data;
 };
