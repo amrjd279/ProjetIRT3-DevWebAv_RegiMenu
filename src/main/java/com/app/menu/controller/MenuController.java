@@ -63,6 +63,19 @@ public class MenuController {
     }
 
     /**
+     * Endpoint POST /api/meals/today/validate (v1.0)
+     * Permet à l'utilisateur connecté d'entériner son choix du jour (verrouillage de la suggestion).
+     */
+    @PostMapping("/today/validate")
+    public ResponseEntity<MealsResponseDto> validateTodayMenu(
+            @AuthenticationPrincipal SecurityUser currentUser) {
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
+        log.info("Requête POST /api/meals/today/validate reçue pour userId={}", userId);
+        MealsResponseDto response = menuService.validateTodayMenu(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Endpoint GET /api/meals/random (Compatibilité v0.1)
      * Récupère une liste de repas aléatoires.
      */
