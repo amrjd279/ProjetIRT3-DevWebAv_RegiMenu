@@ -101,8 +101,8 @@ public class SecurityConfig {
                 // Documentation Swagger & Console H2 - ouvert à tous (phase de développement faudra peut-être restreindre l'accès en production)
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
-                // Administration réservée aux utilisateurs authentifiés
-                .requestMatchers("/api/admin/**").authenticated()
+                // Administration (ROLE_ADMIN requis)
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Endpoints authentifiés
                 .requestMatchers(HttpMethod.POST, "/api/meals/regenerate").authenticated()
                 .requestMatchers("/api/profile/**", "/api/favorites/**", "/api/auth/me").authenticated()

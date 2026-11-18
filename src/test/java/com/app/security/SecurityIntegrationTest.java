@@ -102,7 +102,7 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    void shouldAllowAdminEndpointForAuthenticatedStandardUser() throws Exception {
+    void shouldForbidAdminEndpointForStandardUser() throws Exception {
         // Étape 1 : Register un utilisateur standard
         String registerJson = """
                 {
@@ -138,10 +138,10 @@ class SecurityIntegrationTest {
         JsonNode jsonNode = objectMapper.readTree(loginResponse);
         String token = jsonNode.get("token").asText();
 
-        // Étape 3 : Appeler la route d'administration avec un compte authentifié
+        // Étape 3 : Vérifier que le compte standard est refusé
         mockMvc.perform(get("/api/admin/users")
                 .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
     }
 
     @Test
