@@ -22,6 +22,10 @@ public interface UserProfileRepository {
 
     UserProfile save(UserProfile userProfile);
 
+    void incrementRequestCount(Long id);
+
+    void incrementRequestCount(Long id, int amount);
+
     void updateStatus(Long id, AccountStatus status);
 
     void deleteById(Long id);
